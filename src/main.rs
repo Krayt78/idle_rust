@@ -6,7 +6,7 @@ mod activity; // Keep your activity module
 mod job; // Keep your job module    
 
 use eframe::egui; // Import egui for UI elements
-use player::{Player, Occupation}; // Import your Player and Occupation
+use player::Player; // Import your Player
 use crate::inventory::Inventory; // Assuming you might want to display inventory later
 use crate::item::Item; // Assuming you might want to display items later
 
@@ -55,11 +55,11 @@ impl eframe::App for MyApp {
         let ui_event = ui::update(&mut self.player, ctx);
 
         // --- Handle events returned from UI ---
-        if let Some(chosen_occupation) = ui_event {
-             // Check if the event was an Occupation choice
+        if let Some(chosen_activity) = ui_event {
+             // Check if the event was an Activity choice
              // In the future, ui::update might return different kinds of events
              // using an enum, so a match might be better here.
-            self.player.set_occupation(chosen_occupation);
+            self.player.set_activity(chosen_activity);
         }
 
         // Add handling for other potential events from the UI here later...

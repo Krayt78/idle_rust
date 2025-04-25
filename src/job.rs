@@ -1,4 +1,5 @@
 use std::cmp::PartialEq;  
+use std::fmt;
 
 pub struct Job {
     pub name: JobName,
@@ -11,6 +12,12 @@ pub enum JobName {
     Woodcutter,
     Miner,
     Farmer,
+}
+
+impl fmt::Display for JobName {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 impl Job {

@@ -1,19 +1,21 @@
 use std::io::{self, Write};
 use crate::player::Player;
-use crate::player::Occupation;
+use crate::activity::Activity;
+use crate::activity::ActivityName;
+use crate::job::JobName;
 use eframe::egui;
 
-pub fn update(player: &mut Player, ctx: &egui::Context) -> Option<Occupation> {
-    let mut occupation_event: Option<Occupation> = None; // Initialize event variable
+pub fn update(player: &mut Player, ctx: &egui::Context) -> Option<Activity> {
+    let mut activity_event: Option<Activity> = None; // Initialize event variable
 
     egui::CentralPanel::default().show(ctx, |ui| {
         ui.heading("Idle Game");
         ui.separator();
 
         ui.label(format!(
-            "Current Occupation: {}",
-            match player.get_occupation() {
-                Some(occ) => format!("{:?}", occ),
+            "Current Activity: {}",
+            match player.get_activity() {
+                Some(act) => format!("{:?}", act.name),
                 None => "Nothing".to_string(),
             }
         ));
@@ -22,35 +24,35 @@ pub fn update(player: &mut Player, ctx: &egui::Context) -> Option<Occupation> {
         show_player_stats_ui(ui, &player);
 
         // --- Call the UI function and store its output ---
-        occupation_event = show_occupation_ui(ui);
+        activity_event = show_activity_ui(ui);
     });
 
     // Request a repaint for the next frame - needed for continuous updates
     ctx.request_repaint();
 
     // Return the event captured during UI drawing
-    occupation_event
+    activity_event
 }
 
-fn show_occupation_ui(ui: &mut egui::Ui) -> Option<Occupation> {
-    let mut chosen_occupation = None; // Initialize as None
+fn show_activity_ui(ui: &mut egui::Ui) -> Option<Activity> {
+    let mut chosen_activity = None; // Initialize as None
 
     ui.separator();
-    ui.label("Choose Occupation:");
+    ui.label("Choose Activity:");
 
     // Check buttons and store the choice if clicked
     if ui.button("Mining").clicked() {
-        chosen_occupation = Some(Occupation::Miner);
+        chosen_activity = Some(Activity::new(ActivityName::Mining, "Mining".to_string(), 10.0, vec![(JobName::Miner, 100)], vec![]));
     }
     if ui.button("Woodcutting").clicked() {
-        chosen_occupation = Some(Occupation::Woodcutter);
+        chosen_activity = Some(Activity::new(ActivityName::Woodcutting, "Woodcutting".to_string(), 10.0, vec![(JobName::Woodcutter, 100)], vec![]));
     }
     if ui.button("Farming").clicked() {
-        chosen_occupation = Some(Occupation::Farmer);
+        chosen_activity = Some(Activity::new(ActivityName::Farming, "Farming".to_string(), 10.0, vec![(JobName::Farmer, 100)], vec![]));
     }
     // Add more buttons for other occupations...
 
-    chosen_occupation // Return the result (None if no button clicked)
+    chosen_activity // Return the result (None if no button clicked)
 }
 
 fn show_jobs_ui(ui: &mut egui::Ui, player: &Player) {
@@ -71,9 +73,9 @@ fn show_player_stats_ui(ui: &mut egui::Ui, player: &Player) {
     ui.label(format!("Level: {}", player.level));
     ui.label(format!("Gold: {}", player.gold));
     ui.label(format!("Inventory: {}", player.inventory));
-    let current_occupation = match player.current_occupation {
-        Some(occ) => format!("{:?}", occ),
+    let current_activity = match &player.current_activity {
+        Some(act) => format!("{:?}", act.name),
         None => "Nothing".to_string(),
     };
-    ui.label(format!("Current Occupation: {}", current_occupation));
+    ui.label(format!("Current Activity: {}", current_activity));
 }

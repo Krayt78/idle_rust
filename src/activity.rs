@@ -2,25 +2,33 @@ use crate::item::Item;
 use crate::job::JobName;
 use crate::job::Job;
 use crate::inventory::Inventory;
+use std::fmt;
+
+#[derive(Debug, PartialEq)]
+pub enum ActivityName {
+    Woodcutting,
+    Mining,
+    Farming,
+}
 
 pub struct Activity {
-    pub name: String,
+    pub name: ActivityName,
     pub description: String,
-    pub duration: u128,
-    pub timer: u128,
+    pub duration: f32,
+    pub timer: f32,
     pub experience: Vec<(JobName, u128)>,
     pub items: Vec<Item>,
 }
 
 impl Activity {
-    pub fn new(name: String, description: String, duration: u128, experience: Vec<(JobName, u128)>, items: Vec<Item>) -> Self {
-        Self { name, description, duration, experience, timer: 0, items }
+    pub fn new(name: ActivityName, description: String, duration: f32, experience: Vec<(JobName, u128)>, items: Vec<Item>) -> Self {
+        Self { name, description, duration, experience, timer: 0.0, items }
     }
 
-    pub fn update(&mut self, delta_time: u128, jobs: &mut Vec<Job>, inventory: &mut Inventory) {
+    pub fn update(&mut self, delta_time: f32, jobs: &mut Vec<Job>, inventory: &mut Inventory) {
         self.timer += delta_time;
         if self.timer >= self.duration {
-            self.timer = 0;
+            self.timer = 0.0;
 
             for (job, experience) in &self.experience {
                 jobs.iter_mut().find(|j| j.name == *job).unwrap().experience += experience;
@@ -33,15 +41,26 @@ impl Activity {
     }
 }
 
+impl fmt::Display for Activity {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.name {
+            ActivityName::Woodcutting => write!(f, "Woodcutting"),
+            ActivityName::Mining => write!(f, "Mining"),
+            ActivityName::Farming => write!(f, "Farming"),
+        }
+    }
+}
+
+
 mod tests {
     use super::*;
     
     #[test]
     fn test_activity_new() {
-        let activity = Activity::new("Woodcutting".to_string(), "Cutting down trees".to_string(), 1000, vec![(JobName::Woodcutter, 100)], vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)]);
-        assert_eq!(activity.name, "Woodcutting");
+        let activity = Activity::new(ActivityName::Woodcutting, "Cutting down trees".to_string(), 1000.0, vec![(JobName::Woodcutter, 100)], vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)]);
+        assert_eq!(activity.name, ActivityName::Woodcutting);
         assert_eq!(activity.description, "Cutting down trees");
-        assert_eq!(activity.duration, 1000);
+        assert_eq!(activity.duration, 1000.0);
         assert_eq!(activity.experience, vec![(JobName::Woodcutter, 100)]);
         assert_eq!(activity.items, vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)]);
     }
@@ -50,9 +69,9 @@ mod tests {
     fn test_activity_update() {
         let mut jobs = vec![Job::new(JobName::Woodcutter, "Woodcutter".to_string(), 0)];
         let mut inventory = Inventory::new();
-        let mut activity = Activity::new("Woodcutting".to_string(), "Cutting down trees".to_string(), 1000, vec![(JobName::Woodcutter, 100)], vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)]);
-        activity.update(500, &mut jobs, &mut inventory);
-        assert_eq!(activity.timer, 500);
+        let mut activity = Activity::new(ActivityName::Woodcutting, "Cutting down trees".to_string(), 1000.0, vec![(JobName::Woodcutter, 100)], vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)]);
+        activity.update(500.0, &mut jobs, &mut inventory);
+        assert_eq!(activity.timer, 500.0);
         assert_eq!(activity.experience, vec![(JobName::Woodcutter, 100)]);
         assert_eq!(inventory.items.len(), 0);
         assert_eq!(jobs[0].experience, 0);
@@ -62,9 +81,9 @@ mod tests {
     fn test_activity_complete() {
         let mut jobs = vec![Job::new(JobName::Woodcutter, "Woodcutter".to_string(), 0)];
         let mut inventory = Inventory::new();
-        let mut activity = Activity::new("Woodcutting".to_string(), "Cutting down trees".to_string(), 1000, vec![(JobName::Woodcutter, 100)], vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)]);
-        activity.update(1000, &mut jobs, &mut inventory);
-        assert_eq!(activity.timer, 0);
+        let mut activity = Activity::new(ActivityName::Woodcutting, "Cutting down trees".to_string(), 1000.0, vec![(JobName::Woodcutter, 100)], vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)]);
+        activity.update(1000.0, &mut jobs, &mut inventory);
+        assert_eq!(activity.timer, 0.0);
         assert_eq!(activity.experience, vec![(JobName::Woodcutter, 100)]);
         assert_eq!(inventory.items.len(), 1);
         assert_eq!(inventory.items["Wood"].amount, 1);
@@ -80,9 +99,9 @@ mod tests {
         ];
         let mut inventory = Inventory::new();
         let mut activity = Activity::new(
-            "Woodcutting".to_string(),
+            ActivityName::Woodcutting,
             "Cutting down trees".to_string(),
-            1000,
+            1000.0,
             vec![
                 (JobName::Woodcutter, 100),
                 (JobName::Miner, 200),
@@ -95,7 +114,7 @@ mod tests {
             ]
         );
 
-        activity.update(1000, &mut jobs, &mut inventory);
+        activity.update(1000.0, &mut jobs, &mut inventory);
         assert_eq!(jobs[0].experience, 100);
         assert_eq!(jobs[1].experience, 200);
         assert_eq!(jobs[2].experience, 300);
