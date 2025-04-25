@@ -45,10 +45,6 @@ impl Player {
         }
     }
 
-    pub fn change_activity(&mut self, activity: Activity) {
-        self.current_activity = Some(activity);
-    }
-
     pub fn set_activity(&mut self, activity: Activity) {
         self.current_activity = Some(activity);
     }

@@ -47,7 +47,7 @@ fn show_activity_ui(ui: &mut egui::Ui) -> Option<Activity> {
             "Mining".to_string(),
             10.0,
             vec![(JobName::Miner, 100)],
-            vec![],
+            vec![Item::new("Stone".to_string(), "Stone".to_string(), 1)],
         ));
     }
     if ui.button("Woodcutting").clicked() {
@@ -56,7 +56,7 @@ fn show_activity_ui(ui: &mut egui::Ui) -> Option<Activity> {
             "Woodcutting".to_string(),
             10.0,
             vec![(JobName::Woodcutter, 100)],
-            vec![],
+            vec![Item::new("Log".to_string(), "Log".to_string(), 1)],
         ));
     }
     if ui.button("Farming").clicked() {
@@ -65,7 +65,7 @@ fn show_activity_ui(ui: &mut egui::Ui) -> Option<Activity> {
             "Farming".to_string(),
             10.0,
             vec![(JobName::Farmer, 100)],
-            vec![],
+            vec![Item::new("Potato".to_string(), "Potato".to_string(), 1)],
         ));
     }
     // Add more buttons for other occupations...
