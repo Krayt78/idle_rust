@@ -5,7 +5,7 @@ use crate::job::Job;
 use crate::job::JobName;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Player {
     pub health: u8,
     pub mana: u8,

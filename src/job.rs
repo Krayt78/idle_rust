@@ -2,14 +2,14 @@ use std::cmp::PartialEq;
 use std::fmt;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Job {
     pub name: JobName,
     pub description: String,
     pub experience: u128,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub enum JobName {
     Woodcutter,
     Miner,

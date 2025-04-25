@@ -23,14 +23,20 @@ fn main() -> Result<(), eframe::Error> {
         ..Default::default()
     };
 
-    // Create the initial player state
-    let initial_player = Player::new(); // You might want to set an initial occupation later
+    let save = save::load();
+    let mut game_state = GameState::new();
+    let mut player = Player::new();
+
+    if save.is_some() {
+        game_state = save.clone().unwrap().0;
+        player = save.clone().unwrap().1;
+    }
 
     // Run the eframe application
     eframe::run_native(
         "Idle Game", // Window title
         options,
-        Box::new(|_cc| Box::new(MyApp::new(initial_player))), // Create and run our app
+        Box::new(|_cc| Box::new(MyApp::new(player, game_state))), // Create and run our app
     )
 }
 
@@ -42,10 +48,10 @@ struct MyApp {
 }
 
 impl MyApp {
-    fn new(player: Player) -> Self {
+    fn new(player: Player, game_state: GameState) -> Self {
         Self {
             player,
-            game_state: GameState::new(),
+            game_state,
         }
     }
 }
@@ -108,5 +114,11 @@ impl eframe::App for MyApp {
         }
 
         // Add handling for other potential events from the UI here later...
+    }
+
+    fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+        println!("Exiting application. saving...");
+        save::save(&self.game_state, &self.player);
+        println!("Save finished.");
     }
 }
