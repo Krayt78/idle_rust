@@ -1,29 +1,32 @@
 use crate::item::Item;
 use std::fmt;
+use std::collections::HashMap;
+
+
 pub struct Inventory {
-    pub items: Vec<Item>,
+    pub items: HashMap<String, Item>,   
 }
 
 impl Inventory {
     pub fn new() -> Self {
-        Self { items: Vec::new() }
+        Self { items: HashMap::new() }
     }
 
-    pub fn add_item(&mut self, item: Item) {
-        if let Some(i) = self.items.iter_mut().find(|i| i.name == item.name) {
+    pub fn add_item(&mut self, item: &Item) {
+        if let Some(i) = self.items.get_mut(&item.name) {
             i.amount += item.amount;
         } else {
-            self.items.push(item);
+            self.items.insert(item.name.clone(), item.clone());
         }
     }
 
     pub fn remove_item(&mut self, item: Item) -> Result<(), String> {
-        if let Some(i) = self.items.iter_mut().find(|i| i.name == item.name) {
+        if let Some(i) = self.items.get_mut(&item.name) {
             if i.amount > item.amount {
                 i.amount -= item.amount;
                 Ok(())
             } else if i.amount == item.amount {
-                self.items.remove(self.items.iter().position(|i| i.name == item.name).unwrap());
+                self.items.remove(&item.name);
                 Ok(())
             } else {
                 Err(format!("Item {} has only {} left", item.name, i.amount))
@@ -34,7 +37,7 @@ impl Inventory {
     }
 
     pub fn get_item(&self, item: Item) -> Option<&Item> {
-        self.items.iter().find(|i| i.name == item.name)
+        self.items.get(&item.name)
     }
 
     pub fn get_item_amount(&self, item: Item) -> u128 {
@@ -44,8 +47,8 @@ impl Inventory {
 
 impl fmt::Display for Inventory {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for item in &self.items {
-            write!(f, "{}: {}", item.name, item.amount)?;
+        for (name, item) in &self.items {
+            write!(f, "{}: {}", name, item.amount)?;
         }
         Ok(())
     }

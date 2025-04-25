@@ -67,15 +67,15 @@ impl Player {
         // Update player stats based on current occupation
         match self.current_occupation {
             Some(Occupation::Woodcutter) => {
-                self.inventory.add_item(Item::new("Log".to_string(), "A Log".to_string(), 1));
+                self.inventory.add_item(&Item::new("Log".to_string(), "A Log".to_string(), 1));
                 self.jobs[0].experience += 1;
             }
             Some(Occupation::Miner) => {
-                self.inventory.add_item(Item::new("Stone".to_string(), "A Stone".to_string(), 1));
+                self.inventory.add_item(&Item::new("Stone".to_string(), "A Stone".to_string(), 1));
                 self.jobs[1].experience += 1;
             }
             Some(Occupation::Farmer) => {
-                self.inventory.add_item(Item::new("Wheat".to_string(), "Some Wheat".to_string(), 1));
+                self.inventory.add_item(&Item::new("Wheat".to_string(), "Some Wheat".to_string(), 1));
                 self.jobs[2].experience += 1;
             }
             _ => {}

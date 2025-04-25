@@ -1,5 +1,8 @@
 use std::fmt;
+use std::cmp::PartialEq;
+use std::clone::Clone;
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct Item {
     pub name: String,
     pub description: String,

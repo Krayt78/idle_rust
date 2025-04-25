@@ -2,6 +2,8 @@ mod item; // Keep your item module
 mod player; // Keep your player module
 mod ui; // Keep your ui module
 mod inventory; // Keep your inventory module
+mod activity; // Keep your activity module
+mod job; // Keep your job module    
 
 use eframe::egui; // Import egui for UI elements
 use player::{Player, Occupation}; // Import your Player and Occupation
