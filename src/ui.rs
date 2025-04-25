@@ -1,9 +1,9 @@
-use std::io::{self, Write};
-use crate::player::Player;
 use crate::activity::Activity;
 use crate::activity::ActivityName;
 use crate::job::JobName;
+use crate::player::Player;
 use eframe::egui;
+use std::io::{self, Write};
 
 pub fn update(player: &mut Player, ctx: &egui::Context) -> Option<Activity> {
     let mut activity_event: Option<Activity> = None; // Initialize event variable
@@ -42,13 +42,31 @@ fn show_activity_ui(ui: &mut egui::Ui) -> Option<Activity> {
 
     // Check buttons and store the choice if clicked
     if ui.button("Mining").clicked() {
-        chosen_activity = Some(Activity::new(ActivityName::Mining, "Mining".to_string(), 10.0, vec![(JobName::Miner, 100)], vec![]));
+        chosen_activity = Some(Activity::new(
+            ActivityName::Mining,
+            "Mining".to_string(),
+            10.0,
+            vec![(JobName::Miner, 100)],
+            vec![],
+        ));
     }
     if ui.button("Woodcutting").clicked() {
-        chosen_activity = Some(Activity::new(ActivityName::Woodcutting, "Woodcutting".to_string(), 10.0, vec![(JobName::Woodcutter, 100)], vec![]));
+        chosen_activity = Some(Activity::new(
+            ActivityName::Woodcutting,
+            "Woodcutting".to_string(),
+            10.0,
+            vec![(JobName::Woodcutter, 100)],
+            vec![],
+        ));
     }
     if ui.button("Farming").clicked() {
-        chosen_activity = Some(Activity::new(ActivityName::Farming, "Farming".to_string(), 10.0, vec![(JobName::Farmer, 100)], vec![]));
+        chosen_activity = Some(Activity::new(
+            ActivityName::Farming,
+            "Farming".to_string(),
+            10.0,
+            vec![(JobName::Farmer, 100)],
+            vec![],
+        ));
     }
     // Add more buttons for other occupations...
 

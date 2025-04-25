@@ -1,4 +1,4 @@
-use std::cmp::PartialEq;  
+use std::cmp::PartialEq;
 use std::fmt;
 
 pub struct Job {
@@ -22,7 +22,11 @@ impl fmt::Display for JobName {
 
 impl Job {
     pub fn new(name: JobName, description: String, experience: u128) -> Self {
-        Self { name, description, experience }
+        Self {
+            name,
+            description,
+            experience,
+        }
     }
 }
 

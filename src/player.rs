@@ -1,6 +1,6 @@
+use crate::activity::Activity;
 use crate::inventory::Inventory;
 use crate::item::Item;
-use crate::activity::Activity;
 use crate::job::Job;
 use crate::job::JobName;
 pub struct Player {
@@ -34,7 +34,7 @@ impl Player {
             current_activity: None,
         }
     }
-    
+
     pub fn update(&mut self, delta_time: f32) {
         // Update player stats based on current occupation
         match &mut self.current_activity {
@@ -43,7 +43,7 @@ impl Player {
             }
             None => {}
         }
-    }   
+    }
 
     pub fn change_activity(&mut self, activity: Activity) {
         self.current_activity = Some(activity);
@@ -57,5 +57,3 @@ impl Player {
         self.current_activity.as_ref()
     }
 }
-
-

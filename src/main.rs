@@ -1,14 +1,14 @@
-mod item; // Keep your item module
-mod player; // Keep your player module
-mod ui; // Keep your ui module
-mod inventory; // Keep your inventory module
 mod activity; // Keep your activity module
-mod job; // Keep your job module    
+mod inventory; // Keep your inventory module
+mod item; // Keep your item module
+mod job;
+mod player; // Keep your player module
+mod ui; // Keep your ui module // Keep your job module
 
-use eframe::egui; // Import egui for UI elements
-use player::Player; // Import your Player
 use crate::inventory::Inventory; // Assuming you might want to display inventory later
-use crate::item::Item; // Assuming you might want to display items later
+use crate::item::Item;
+use eframe::egui; // Import egui for UI elements
+use player::Player; // Import your Player // Assuming you might want to display items later
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
@@ -49,16 +49,15 @@ impl eframe::App for MyApp {
         // e.g., self.player.passive_update(delta_time);
         self.player.update(delta_time);
 
-
         // --- Draw UI and get events ---
         // Call ui::update and capture the returned event
         let ui_event = ui::update(&mut self.player, ctx);
 
         // --- Handle events returned from UI ---
         if let Some(chosen_activity) = ui_event {
-             // Check if the event was an Activity choice
-             // In the future, ui::update might return different kinds of events
-             // using an enum, so a match might be better here.
+            // Check if the event was an Activity choice
+            // In the future, ui::update might return different kinds of events
+            // using an enum, so a match might be better here.
             self.player.set_activity(chosen_activity);
         }
 

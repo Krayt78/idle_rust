@@ -1,6 +1,6 @@
-use std::fmt;
-use std::cmp::PartialEq;
 use std::clone::Clone;
+use std::cmp::PartialEq;
+use std::fmt;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Item {
@@ -11,7 +11,11 @@ pub struct Item {
 
 impl Item {
     pub fn new(name: String, description: String, amount: u128) -> Self {
-        Self { name, description, amount }
+        Self {
+            name,
+            description,
+            amount,
+        }
     }
 
     pub fn add_amount(&mut self, amount: u128) {

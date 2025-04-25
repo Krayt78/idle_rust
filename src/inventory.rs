@@ -1,15 +1,16 @@
 use crate::item::Item;
-use std::fmt;
 use std::collections::HashMap;
-
+use std::fmt;
 
 pub struct Inventory {
-    pub items: HashMap<String, Item>,   
+    pub items: HashMap<String, Item>,
 }
 
 impl Inventory {
     pub fn new() -> Self {
-        Self { items: HashMap::new() }
+        Self {
+            items: HashMap::new(),
+        }
     }
 
     pub fn add_item(&mut self, item: &Item) {
@@ -53,4 +54,3 @@ impl fmt::Display for Inventory {
         Ok(())
     }
 }
-
