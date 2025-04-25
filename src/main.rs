@@ -10,7 +10,7 @@ use crate::item::Item; // Assuming you might want to display items later
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 240.0]), // Initial window size
+        viewport: egui::ViewportBuilder::default().with_inner_size([640.0, 480.0]), // Initial window size
         ..Default::default()
     };
 
@@ -45,6 +45,7 @@ impl eframe::App for MyApp {
 
         // --- Game Logic using delta_time would go here ---
         // e.g., self.player.passive_update(delta_time);
+        self.player.update(delta_time);
 
 
         // --- Draw UI and get events ---

@@ -18,11 +18,11 @@ pub fn update(player: &mut Player, ctx: &egui::Context) -> Option<Occupation> {
             }
         ));
 
+        show_jobs_ui(ui, &player);
+        show_player_stats_ui(ui, &player);
+
         // --- Call the UI function and store its output ---
         occupation_event = show_occupation_ui(ui);
-
-        // --- Display other player stats ---
-        // ...
     });
 
     // Request a repaint for the next frame - needed for continuous updates
@@ -53,15 +53,27 @@ fn show_occupation_ui(ui: &mut egui::Ui) -> Option<Occupation> {
     chosen_occupation // Return the result (None if no button clicked)
 }
 
-fn ShowPlayerStats(player: &Player) {
-    println!("Player Stats");
-    println!("Health: {}", player.health);
-    println!("Mana: {}", player.mana);
-    println!("Attack Power: {}", player.attack_power);
-    println!("Defense: {}", player.defense);
-    println!("Level: {}", player.level);
-    println!("Experience: {}", player.experience);
-    println!("Gold: {}", player.gold);
-    println!("Inventory: {}", player.inventory);
-    println!("Occupation: {}", player.occupation);
+fn show_jobs_ui(ui: &mut egui::Ui, player: &Player) {
+    ui.separator();
+    ui.label("Jobs:");
+    for job in &player.jobs {
+        ui.label(format!("{}: {}", job.name, job.experience));
+    }
+}
+
+fn show_player_stats_ui(ui: &mut egui::Ui, player: &Player) {
+    ui.separator();
+    ui.label("Player Stats");
+    ui.label(format!("Health: {}", player.health));
+    ui.label(format!("Mana: {}", player.mana));
+    ui.label(format!("Attack Power: {}", player.attack_power));
+    ui.label(format!("Defense: {}", player.defense));
+    ui.label(format!("Level: {}", player.level));
+    ui.label(format!("Gold: {}", player.gold));
+    ui.label(format!("Inventory: {}", player.inventory));
+    let current_occupation = match player.current_occupation {
+        Some(occ) => format!("{:?}", occ),
+        None => "Nothing".to_string(),
+    };
+    ui.label(format!("Current Occupation: {}", current_occupation));
 }
