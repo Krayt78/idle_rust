@@ -1,23 +1,56 @@
 use std::io::{self, Write};
 use crate::player::Player;
+use crate::player::Occupation;
+use eframe::egui;
 
-pub fn print_welcome_message() {
-    println!("Welcome to the game!");
+pub fn update(player: &mut Player, ctx: &egui::Context) -> Option<Occupation> {
+    let mut occupation_event: Option<Occupation> = None; // Initialize event variable
+
+    egui::CentralPanel::default().show(ctx, |ui| {
+        ui.heading("Idle Game");
+        ui.separator();
+
+        ui.label(format!(
+            "Current Occupation: {}",
+            match player.get_occupation() {
+                Some(occ) => format!("{:?}", occ),
+                None => "Nothing".to_string(),
+            }
+        ));
+
+        // --- Call the UI function and store its output ---
+        occupation_event = show_occupation_ui(ui);
+
+        // --- Display other player stats ---
+        // ...
+    });
+
+    // Request a repaint for the next frame - needed for continuous updates
+    ctx.request_repaint();
+
+    // Return the event captured during UI drawing
+    occupation_event
 }
 
-pub fn print_game_loop_message() {
-    println!("What task should the character perform?");
-}
+fn show_occupation_ui(ui: &mut egui::Ui) -> Option<Occupation> {
+    let mut chosen_occupation = None; // Initialize as None
 
-pub fn print_player_input() {
-    println!("What task should the character perform?");
-}
+    ui.separator();
+    ui.label("Choose Occupation:");
 
-pub fn update_screen(player: &Player) {
-    //clear the console
-    println!("--------------------------------");
-    ShowPlayerStats(player);
-    println!("--------------------------------");
+    // Check buttons and store the choice if clicked
+    if ui.button("Mining").clicked() {
+        chosen_occupation = Some(Occupation::Miner);
+    }
+    if ui.button("Woodcutting").clicked() {
+        chosen_occupation = Some(Occupation::Woodcutter);
+    }
+    if ui.button("Farming").clicked() {
+        chosen_occupation = Some(Occupation::Farmer);
+    }
+    // Add more buttons for other occupations...
+
+    chosen_occupation // Return the result (None if no button clicked)
 }
 
 fn ShowPlayerStats(player: &Player) {

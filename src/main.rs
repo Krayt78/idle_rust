@@ -2,10 +2,11 @@ mod item; // Keep your item module
 mod player; // Keep your player module
 mod ui; // Keep your ui module
 mod inventory; // Keep your inventory module
-mod game_loop; // Keep your game_loop module
 
 use eframe::egui; // Import egui for UI elements
 use player::{Player, Occupation}; // Import your Player and Occupation
+use crate::inventory::Inventory; // Assuming you might want to display inventory later
+use crate::item::Item; // Assuming you might want to display items later
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
@@ -38,60 +39,26 @@ impl MyApp {
 
 // Implement the eframe::App trait for our struct
 impl eframe::App for MyApp {
+    // This 'update' function is called on every frame
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        // This 'update' function is called on every frame (like your old game loop)
+        let delta_time = ctx.input(|i| i.stable_dt);
 
-        // --- Calculate Delta Time (Example) ---
-        // let delta_time = ctx.input(|i| i.stable_dt); // egui provides delta time
-        // You would use delta_time here to update game logic passively
+        // --- Game Logic using delta_time would go here ---
+        // e.g., self.player.passive_update(delta_time);
 
-        // --- Define the UI ---
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Idle Game");
-            ui.separator();
 
-            ui.label(format!(
-                "Current Occupation: {}",
-                // Display the occupation or "None"
-                match self.player.get_occupation() { // Assuming you add a get_occupation method
-                    Some(occ) => format!("{:?}", occ),
-                    None => "Nothing".to_string(),
-                }
-            ));
+        // --- Draw UI and get events ---
+        // Call ui::update and capture the returned event
+        let ui_event = ui::update(&mut self.player, ctx);
 
-            ui.separator();
-            ui.label("Choose Occupation:");
+        // --- Handle events returned from UI ---
+        if let Some(chosen_occupation) = ui_event {
+             // Check if the event was an Occupation choice
+             // In the future, ui::update might return different kinds of events
+             // using an enum, so a match might be better here.
+            self.player.set_occupation(chosen_occupation);
+        }
 
-            // Add buttons to change occupation
-            if ui.button("Mining").clicked() {
-                self.player.set_occupation(Occupation::Miner);
-            }
-            if ui.button("Woodcutting").clicked() {
-                self.player.set_occupation(Occupation::Woodcutter);
-            }
-            if ui.button("Farming").clicked() {
-                self.player.set_occupation(Occupation::Farmer);
-            }
-            // Add more buttons for other occupations
-
-            // --- Display other player stats ---
-            // ui.label(format!("Experience: {}", self.player.experience));
-            // ui.label(format!("Inventory: {}", ItemListDisplay(&self.player.inventory))); // Using your ItemListDisplay
-        });
-
-        // Request a repaint for the next frame - needed for continuous updates
-        ctx.request_repaint();
+        // Add handling for other potential events from the UI here later...
     }
 }
-
-// --- You might need to update player.rs slightly ---
-// Add a method like this to player.rs:
-/*
-impl Player {
-    // ... existing methods ...
-
-    pub fn get_occupation(&self) -> Option<Occupation> {
-        self.current_occupation
-    }
-}
-*/
