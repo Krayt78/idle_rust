@@ -1,89 +1,152 @@
 use crate::activity::Activity;
 use crate::activity::ActivityName;
+use crate::game_state::GameState;
 use crate::item::Item;
 use crate::job::JobName;
 use crate::player::Player;
 use eframe::egui;
 use std::io::{self, Write};
 
-pub fn update(player: &mut Player, ctx: &egui::Context) -> Option<Activity> {
-    let mut activity_event: Option<Activity> = None; // Initialize event variable
+pub enum ButtonClicked {
+    Activity,
+    Crafting,
+    Inventory,
+    Stats,
+    Jobs,
+    Mining,
+    Woodcutting,
+    Farming,
+}
+
+pub fn update(
+    player: &mut Player,
+    ctx: &egui::Context,
+    game_state: &GameState,
+) -> Option<ButtonClicked> {
+    let mut button_clicked: Option<ButtonClicked> = None; // Initialize event variable
 
     egui::CentralPanel::default().show(ctx, |ui| {
-        ui.heading("Idle Game");
-        ui.separator();
+        button_clicked = show_header_ui(ui, game_state);
 
-        let current_activity = player.get_activity();
-
-        ui.label(format!(
-            "Current Activity: {}",
-            match current_activity {
-                Some(act) => {
-                    format!("{:?}", act.name)
+        if button_clicked.is_none() {
+            match game_state {
+                GameState::Activity => {
+                    button_clicked = show_activity_ui(ui, player);
                 }
-                None => {
-                    "Nothing".to_string()
+                GameState::Crafting => {
+                    button_clicked = show_crafting_ui(ui, player);
                 }
+                GameState::Inventory => {
+                    button_clicked = show_inventory_ui(ui, player);
+                }
+                _ => {}
             }
-        ));
-
-        if let Some(act) = current_activity {
-            ui.add(egui::ProgressBar::new(act.timer / act.duration));
-        } else {
-            ui.add(egui::ProgressBar::new(0.0));
         }
-
-        show_jobs_ui(ui, &player);
-        show_player_stats_ui(ui, &player);
-
-        // --- Call the UI function and store its output ---
-        activity_event = show_activity_ui(ui);
     });
 
     // Request a repaint for the next frame - needed for continuous updates
     ctx.request_repaint();
 
     // Return the event captured during UI drawing
-    activity_event
+    button_clicked
 }
 
-fn show_activity_ui(ui: &mut egui::Ui) -> Option<Activity> {
-    let mut chosen_activity = None; // Initialize as None
+fn show_header_ui(ui: &mut egui::Ui, game_state: &GameState) -> Option<ButtonClicked> {
+    let mut button_clicked = None;
+
+    //the button for the gamestate we are in should be disabled
+    ui.horizontal(|ui| {
+        ui.heading(format!("{}", game_state));
+        ui.separator();
+
+        match game_state {
+            GameState::Activity => {
+                ui.add_enabled(false, egui::Button::new("Activity"));
+                if ui.button("Crafting").clicked() {
+                    button_clicked = Some(ButtonClicked::Crafting);
+                }
+                if ui.button("Inventory").clicked() {
+                    button_clicked = Some(ButtonClicked::Inventory);
+                }
+            }
+            GameState::Crafting => {
+                if ui.button("Activity").clicked() {
+                    button_clicked = Some(ButtonClicked::Activity);
+                }
+                ui.add_enabled(false, egui::Button::new("Crafting"));
+                if ui.button("Inventory").clicked() {
+                    button_clicked = Some(ButtonClicked::Inventory);
+                }
+            }
+            GameState::Inventory => {
+                if ui.button("Activity").clicked() {
+                    button_clicked = Some(ButtonClicked::Activity);
+                }
+                if ui.button("Crafting").clicked() {
+                    button_clicked = Some(ButtonClicked::Crafting);
+                }
+                ui.add_enabled(false, egui::Button::new("Inventory"));
+            }
+        }
+    });
+    ui.separator();
+    button_clicked
+}
+
+fn show_activity_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClicked> {
+    let mut button_clicked = None; // Initialize as None
+
+    let current_activity = player.get_activity();
+
+    ui.label(format!(
+        "Current Activity: {}",
+        match current_activity {
+            Some(act) => {
+                format!("{:?}", act.name)
+            }
+            None => {
+                "Nothing".to_string()
+            }
+        }
+    ));
+
+    if let Some(act) = current_activity {
+        ui.add(egui::ProgressBar::new(act.timer / act.duration));
+    } else {
+        ui.add(egui::ProgressBar::new(0.0));
+    }
+
+    show_jobs_ui(ui, &player);
+    show_player_stats_ui(ui, &player);
 
     ui.separator();
     ui.label("Choose Activity:");
 
     // Check buttons and store the choice if clicked
     if ui.button("Mining").clicked() {
-        chosen_activity = Some(Activity::new(
-            ActivityName::Mining,
-            "Mining".to_string(),
-            10.0,
-            vec![(JobName::Miner, 100)],
-            vec![Item::new("Stone".to_string(), "Stone".to_string(), 1)],
-        ));
+        button_clicked = Some(ButtonClicked::Mining);
     }
     if ui.button("Woodcutting").clicked() {
-        chosen_activity = Some(Activity::new(
-            ActivityName::Woodcutting,
-            "Woodcutting".to_string(),
-            10.0,
-            vec![(JobName::Woodcutter, 100)],
-            vec![Item::new("Log".to_string(), "Log".to_string(), 1)],
-        ));
+        button_clicked = Some(ButtonClicked::Woodcutting);
     }
     if ui.button("Farming").clicked() {
-        chosen_activity = Some(Activity::new(
-            ActivityName::Farming,
-            "Farming".to_string(),
-            10.0,
-            vec![(JobName::Farmer, 100)],
-            vec![Item::new("Potato".to_string(), "Potato".to_string(), 1)],
-        ));
+        button_clicked = Some(ButtonClicked::Farming);
     }
     // Add more buttons for other occupations...
 
-    chosen_activity // Return the result (None if no button clicked)
+    button_clicked // Return the result (None if no button clicked)
+}
+
+fn show_crafting_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClicked> {
+    let mut button_clicked = None; 
+
+    button_clicked  
+}
+
+fn show_inventory_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClicked> {
+    let mut button_clicked = None;
+
+    button_clicked 
 }
 
 fn show_jobs_ui(ui: &mut egui::Ui, player: &Player) {
