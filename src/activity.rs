@@ -44,16 +44,36 @@ impl Activity {
         self.timer += delta_time;
         if self.timer >= self.duration {
             self.timer = 0.0;
-
-            for (job, experience) in &self.experience {
-                jobs.iter_mut().find(|j| j.name == *job).unwrap().experience += experience;
-            }
-
-            for item in &self.items {
-                inventory.add_item(item);
-            }
+            self.reward(jobs, inventory);
         }
     }
+
+    pub fn update_from_time_elapsed(&mut self, time_elapsed: u64, jobs: &mut Vec<Job>, inventory: &mut Inventory) {
+        let number_of_updates: u32 = ((time_elapsed as f32 + self.timer) / self.duration) as u32;
+        for _ in 0..number_of_updates {
+            self.reward(jobs, inventory);
+        }
+
+        self.timer = (time_elapsed as f32 + self.timer) % self.duration;
+    }
+
+    fn reward(&mut self, jobs: &mut Vec<Job>, inventory: &mut Inventory) {
+        self.reward_experience(jobs, inventory);
+        self.reward_items(inventory);
+    }
+
+    fn reward_experience(&mut self, jobs: &mut Vec<Job>, inventory: &mut Inventory) {
+        for (job, experience) in &self.experience {
+            jobs.iter_mut().find(|j| j.name == *job).unwrap().experience += experience;
+        }
+    }
+
+    fn reward_items(&mut self, inventory: &mut Inventory) {
+        for item in &self.items {
+            inventory.add_item(item);
+        }
+    }
+    
 }
 
 impl fmt::Display for Activity {
@@ -157,5 +177,20 @@ mod tests {
         assert_eq!(inventory.items["Wood"].amount, 1);
         assert_eq!(inventory.items["Stone"].amount, 2);
         assert_eq!(inventory.items["Wheat"].amount, 3);
+    }
+
+    #[test]
+    fn test_activity_update_from_time_elapsed() {
+        let mut jobs = vec![Job::new(JobName::Woodcutter, "Woodcutter".to_string(), 0)];
+        let mut inventory = Inventory::new();
+        let mut activity = Activity::new(ActivityName::Woodcutting, "Cutting down trees".to_string(), 1000.0, vec![(JobName::Woodcutter, 100)], vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)]);
+        activity.update(500.0, &mut jobs, &mut inventory);
+        
+        activity.update_from_time_elapsed(9700, &mut jobs, &mut inventory);
+
+        assert_eq!(activity.timer, 200.0);
+        assert_eq!(inventory.items.len(), 1);
+        assert_eq!(inventory.items["Wood"].amount, 10);
+        assert_eq!(jobs[0].experience, 1000);
     }
 }

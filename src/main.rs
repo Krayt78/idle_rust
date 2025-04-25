@@ -23,20 +23,37 @@ fn main() -> Result<(), eframe::Error> {
         ..Default::default()
     };
 
-    let save = save::load();
+    let save = save::load("save.json");
     let mut game_state = GameState::new();
     let mut player = Player::new();
+    let mut time_elapsed = 0;
 
     if save.is_some() {
         game_state = save.clone().unwrap().0;
         player = save.clone().unwrap().1;
+        let timestamp = save.clone().unwrap().2;
+        let current_time = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+
+        if current_time > timestamp {
+            time_elapsed = current_time - timestamp;
+        } else {
+            println!("What the heck, time went backwards?");
+            time_elapsed = 0;
+        }
+
+        println!("Time elapsed: {} seconds", time_elapsed);
     }
+
+
 
     // Run the eframe application
     eframe::run_native(
         "Idle Game", // Window title
         options,
-        Box::new(|_cc| Box::new(MyApp::new(player, game_state))), // Create and run our app
+        Box::new(move |_cc| Box::new(MyApp::new(player, game_state, time_elapsed))), // Create and run our app
     )
 }
 
@@ -48,7 +65,11 @@ struct MyApp {
 }
 
 impl MyApp {
-    fn new(player: Player, game_state: GameState) -> Self {
+    fn new(mut player: Player, game_state: GameState, time_elapsed: u64) -> Self {
+
+        //get the player's current activity and update it based on the time elapsed
+        player.update_from_time_elapsed(time_elapsed);
+
         Self {
             player,
             game_state,
@@ -118,7 +139,7 @@ impl eframe::App for MyApp {
 
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
         println!("Exiting application. saving...");
-        save::save(&self.game_state, &self.player);
+        save::save(&self.game_state, &self.player, "save.json");
         println!("Save finished.");
     }
 }

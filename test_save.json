@@ -1,0 +1,1 @@
+{"game_state":"Activity","player":{"health":100,"mana":100,"attack_power":1,"defense":1,"level":1,"jobs":[{"name":"Woodcutter","description":"Cut down trees","experience":0},{"name":"Miner","description":"Mine rocks","experience":0},{"name":"Farmer","description":"Grow crops","experience":0}],"gold":0,"inventory":{"items":{}},"current_activity":null},"timestamp":1745610976}

@@ -48,11 +48,26 @@ impl Player {
         }
     }
 
+    pub fn update_from_time_elapsed(&mut self, time_elapsed: u64) {
+        match &mut self.current_activity {
+            Some(activity) => activity.update_from_time_elapsed(time_elapsed, &mut self.jobs, &mut self.inventory),
+            None => {}
+        }
+    }
+
     pub fn set_activity(&mut self, activity: Activity) {
         self.current_activity = Some(activity);
     }
 
     pub fn get_activity(&self) -> Option<&Activity> {
         self.current_activity.as_ref()
+    }
+
+    pub fn get_jobs(&self) -> &Vec<Job> {
+        &self.jobs
+    }
+
+    pub fn get_inventory(&self) -> &Inventory {
+        &self.inventory
     }
 }
