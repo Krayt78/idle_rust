@@ -1,5 +1,6 @@
 use crate::activity::Activity;
 use crate::activity::ActivityName;
+use crate::item::Item;
 use crate::job::JobName;
 use crate::player::Player;
 use eframe::egui;
@@ -12,13 +13,25 @@ pub fn update(player: &mut Player, ctx: &egui::Context) -> Option<Activity> {
         ui.heading("Idle Game");
         ui.separator();
 
+        let current_activity = player.get_activity();
+
         ui.label(format!(
             "Current Activity: {}",
-            match player.get_activity() {
-                Some(act) => format!("{:?}", act.name),
-                None => "Nothing".to_string(),
+            match current_activity {
+                Some(act) => {
+                    format!("{:?}", act.name)
+                }
+                None => {
+                    "Nothing".to_string()
+                }
             }
         ));
+
+        if let Some(act) = current_activity {
+            ui.add(egui::ProgressBar::new(act.timer / act.duration));
+        } else {
+            ui.add(egui::ProgressBar::new(0.0));
+        }
 
         show_jobs_ui(ui, &player);
         show_player_stats_ui(ui, &player);
