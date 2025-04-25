@@ -1,7 +1,9 @@
 use crate::item::Item;
 use std::collections::HashMap;
 use std::fmt;
+use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Inventory {
     pub items: HashMap<String, Item>,
 }

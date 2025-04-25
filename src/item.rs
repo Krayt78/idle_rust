@@ -1,8 +1,9 @@
 use std::clone::Clone;
 use std::cmp::PartialEq;
 use std::fmt;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Item {
     pub name: String,
     pub description: String,

@@ -3,6 +3,9 @@ use crate::inventory::Inventory;
 use crate::item::Item;
 use crate::job::Job;
 use crate::job::JobName;
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Player {
     pub health: u8,
     pub mana: u8,

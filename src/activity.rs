@@ -3,14 +3,16 @@ use crate::item::Item;
 use crate::job::Job;
 use crate::job::JobName;
 use std::fmt;
+use serde::{Deserialize, Serialize};    
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum ActivityName {
     Woodcutting,
     Mining,
     Farming,
 }
 
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Activity {
     pub name: ActivityName,
     pub description: String,

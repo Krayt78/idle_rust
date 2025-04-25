@@ -5,6 +5,7 @@ mod item; // Keep your item module
 mod job;
 mod player; // Keep your player module
 mod ui; // Keep your ui module // Keep your job module
+mod save;
 
 use crate::activity::Activity;
 use crate::activity::ActivityName;
