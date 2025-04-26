@@ -1,22 +1,21 @@
-mod activity; // Keep your activity module
-mod game_state;
-mod inventory; // Keep your inventory module
-mod item; // Keep your item module
-mod job;
-mod player; // Keep your player module
-mod ui; // Keep your ui module // Keep your job module
-mod save;
+mod activity;
 mod constants;
+mod game_state;
+mod inventory;
+mod item;
+mod job;
+mod player;
+mod save;
+mod ui;
 
 use crate::activity::Activity;
 use crate::activity::ActivityName;
 use crate::game_state::GameState;
-use crate::inventory::Inventory; // Assuming you might want to display inventory later
 use crate::item::Item;
 use crate::job::JobName;
 use crate::ui::ButtonClicked;
-use eframe::egui; // Import egui for UI elements
-use player::Player; // Import your Player // Assuming you might want to display items later
+use eframe::egui;
+use player::Player;
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
@@ -48,8 +47,6 @@ fn main() -> Result<(), eframe::Error> {
         println!("Time elapsed: {} seconds", time_elapsed);
     }
 
-
-
     // Run the eframe application
     eframe::run_native(
         "Idle Game", // Window title
@@ -67,14 +64,10 @@ struct MyApp {
 
 impl MyApp {
     fn new(mut player: Player, game_state: GameState, time_elapsed: u64) -> Self {
-
         //get the player's current activity and update it based on the time elapsed
         player.update_from_time_elapsed(time_elapsed);
 
-        Self {
-            player,
-            game_state,
-        }
+        Self { player, game_state }
     }
 }
 

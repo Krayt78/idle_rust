@@ -1,6 +1,6 @@
+use serde::{Deserialize, Serialize};
 use std::cmp::PartialEq;
 use std::fmt;
-use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Job {
@@ -24,10 +24,14 @@ impl fmt::Display for JobName {
     }
 }
 
-
-
 impl Job {
-    pub fn new(name: JobName, description: String, experience: u128, level: u8, level_up_experience: Vec<u128>) -> Self {
+    pub fn new(
+        name: JobName,
+        description: String,
+        experience: u128,
+        level: u8,
+        level_up_experience: Vec<u128>,
+    ) -> Self {
         Self {
             name,
             description,
@@ -59,7 +63,13 @@ mod tests {
 
     #[test]
     fn test_job_new() {
-        let job = Job::new(JobName::Woodcutter, "Woodcutter".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec());
+        let job = Job::new(
+            JobName::Woodcutter,
+            "Woodcutter".to_string(),
+            0,
+            1,
+            LEVEL_UP_EXPERIENCE.to_vec(),
+        );
         assert_eq!(job.name, JobName::Woodcutter);
         assert_eq!(job.description, "Woodcutter");
         assert_eq!(job.experience, 0);
@@ -69,7 +79,13 @@ mod tests {
 
     #[test]
     fn test_job_add_experience() {
-        let mut job = Job::new(JobName::Woodcutter, "Woodcutter".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec());
+        let mut job = Job::new(
+            JobName::Woodcutter,
+            "Woodcutter".to_string(),
+            0,
+            1,
+            LEVEL_UP_EXPERIENCE.to_vec(),
+        );
         job.add_experience(50);
         assert_eq!(job.experience, 50);
         assert_eq!(job.level, 1);
@@ -77,7 +93,13 @@ mod tests {
 
     #[test]
     fn test_job_level_up() {
-        let mut job = Job::new(JobName::Woodcutter, "Woodcutter".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec());
+        let mut job = Job::new(
+            JobName::Woodcutter,
+            "Woodcutter".to_string(),
+            0,
+            1,
+            LEVEL_UP_EXPERIENCE.to_vec(),
+        );
         let xp_needed_for_level_2 = LEVEL_UP_EXPERIENCE[0];
         job.add_experience(xp_needed_for_level_2 - 1);
         assert_eq!(job.level, 1);
@@ -89,8 +111,16 @@ mod tests {
 
     #[test]
     fn test_job_level_up_multiple_times() {
-        let mut job = Job::new(JobName::Woodcutter, "Woodcutter".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec());
-        job.add_experience(LEVEL_UP_EXPERIENCE[0] + LEVEL_UP_EXPERIENCE[1] + LEVEL_UP_EXPERIENCE[2] + 10);
+        let mut job = Job::new(
+            JobName::Woodcutter,
+            "Woodcutter".to_string(),
+            0,
+            1,
+            LEVEL_UP_EXPERIENCE.to_vec(),
+        );
+        job.add_experience(
+            LEVEL_UP_EXPERIENCE[0] + LEVEL_UP_EXPERIENCE[1] + LEVEL_UP_EXPERIENCE[2] + 10,
+        );
         assert_eq!(job.level, 4);
         assert_eq!(job.experience, 10);
     }

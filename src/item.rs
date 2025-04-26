@@ -1,7 +1,7 @@
+use serde::{Deserialize, Serialize};
 use std::clone::Clone;
 use std::cmp::PartialEq;
 use std::fmt;
-use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Item {

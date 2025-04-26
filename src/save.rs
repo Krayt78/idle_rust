@@ -2,11 +2,11 @@
 
 use crate::game_state::GameState;
 use crate::player::Player;
-use std::fs::File;
-use std::io::BufWriter;
-use std::io::BufReader;
+use serde::{Deserialize, Serialize};
 use serde_json;
-use serde::{Serialize, Deserialize};
+use std::fs::File;
+use std::io::BufReader;
+use std::io::BufWriter;
 
 pub fn save(game_state: &GameState, player: &Player, save_name: &str) {
     let file = File::create(save_name).unwrap();

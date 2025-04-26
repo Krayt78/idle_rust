@@ -1,11 +1,6 @@
-use crate::activity::Activity;
-use crate::activity::ActivityName;
 use crate::game_state::GameState;
-use crate::item::Item;
-use crate::job::JobName;
 use crate::player::Player;
 use eframe::egui;
-use std::io::{self, Write};
 
 pub enum ButtonClicked {
     Activity,
@@ -138,22 +133,25 @@ fn show_activity_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClic
 }
 
 fn show_crafting_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClicked> {
-    let mut button_clicked = None; 
+    let mut button_clicked = None;
 
-    button_clicked  
+    button_clicked
 }
 
 fn show_inventory_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClicked> {
     let mut button_clicked = None;
 
-    button_clicked 
+    button_clicked
 }
 
 fn show_jobs_ui(ui: &mut egui::Ui, player: &Player) {
     ui.separator();
     ui.label("Jobs:");
     for job in &player.jobs {
-        ui.label(format!("{}: level: {} | xp: {}", job.name, job.level, job.experience));
+        ui.label(format!(
+            "{}: level: {} | xp: {}",
+            job.name, job.level, job.experience
+        ));
     }
 }
 

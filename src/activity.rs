@@ -2,8 +2,8 @@ use crate::inventory::Inventory;
 use crate::item::Item;
 use crate::job::Job;
 use crate::job::JobName;
+use serde::{Deserialize, Serialize};
 use std::fmt;
-use serde::{Deserialize, Serialize};    
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub enum ActivityName {
@@ -40,7 +40,12 @@ impl Activity {
         }
     }
 
-    pub fn update(&mut self, delta_time: f32, jobs: &mut Vec<Job>, inventory: &mut Inventory) -> Result<(), String> {
+    pub fn update(
+        &mut self,
+        delta_time: f32,
+        jobs: &mut Vec<Job>,
+        inventory: &mut Inventory,
+    ) -> Result<(), String> {
         self.timer += delta_time;
         if self.timer >= self.duration {
             self.timer = 0.0;
@@ -49,7 +54,12 @@ impl Activity {
         Ok(())
     }
 
-    pub fn update_from_time_elapsed(&mut self, time_elapsed: u64, jobs: &mut Vec<Job>, inventory: &mut Inventory) -> Result<(), String> {
+    pub fn update_from_time_elapsed(
+        &mut self,
+        time_elapsed: u64,
+        jobs: &mut Vec<Job>,
+        inventory: &mut Inventory,
+    ) -> Result<(), String> {
         let number_of_updates: u32 = ((time_elapsed as f32 + self.timer) / self.duration) as u32;
         for _ in 0..number_of_updates {
             self.reward(jobs, inventory)?;
@@ -60,12 +70,12 @@ impl Activity {
     }
 
     fn reward(&mut self, jobs: &mut Vec<Job>, inventory: &mut Inventory) -> Result<(), String> {
-        self.reward_experience(jobs, inventory)?;
+        self.reward_experience(jobs)?;
         self.reward_items(inventory);
         Ok(())
     }
 
-    fn reward_experience(&mut self, jobs: &mut Vec<Job>, inventory: &mut Inventory) -> Result<(), String> {
+    fn reward_experience(&mut self, jobs: &mut Vec<Job>) -> Result<(), String> {
         for (job, experience) in &self.experience {
             match jobs.iter_mut().find(|j| j.name == *job) {
                 Some(job) => job.add_experience(*experience),
@@ -80,7 +90,6 @@ impl Activity {
             inventory.add_item(item);
         }
     }
-    
 }
 
 impl fmt::Display for Activity {
@@ -96,7 +105,7 @@ impl fmt::Display for Activity {
 mod tests {
     use super::*;
     use crate::constants::LEVEL_UP_EXPERIENCE;
-    
+
     #[test]
     fn test_activity_new() {
         let activity = Activity::new(
@@ -118,7 +127,13 @@ mod tests {
 
     #[test]
     fn test_activity_update() {
-        let mut jobs = vec![Job::new(JobName::Woodcutter, "Woodcutter".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec())];
+        let mut jobs = vec![Job::new(
+            JobName::Woodcutter,
+            "Woodcutter".to_string(),
+            0,
+            1,
+            LEVEL_UP_EXPERIENCE.to_vec(),
+        )];
         let mut inventory = Inventory::new();
         let mut activity = Activity::new(
             ActivityName::Woodcutting,
@@ -129,7 +144,10 @@ mod tests {
         );
         activity.update(500.0, &mut jobs, &mut inventory).unwrap();
         assert_eq!(activity.timer, 500.0);
-        assert_eq!(activity.experience, vec![(JobName::Woodcutter, LEVEL_UP_EXPERIENCE[0] / 2)]);
+        assert_eq!(
+            activity.experience,
+            vec![(JobName::Woodcutter, LEVEL_UP_EXPERIENCE[0] / 2)]
+        );
         assert_eq!(inventory.items.len(), 0);
         assert_eq!(jobs[0].experience, 0);
         assert_eq!(jobs[0].level, 1);
@@ -137,7 +155,13 @@ mod tests {
 
     #[test]
     fn test_activity_complete() {
-        let mut jobs = vec![Job::new(JobName::Woodcutter, "Woodcutter".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec())];
+        let mut jobs = vec![Job::new(
+            JobName::Woodcutter,
+            "Woodcutter".to_string(),
+            0,
+            1,
+            LEVEL_UP_EXPERIENCE.to_vec(),
+        )];
         let mut inventory = Inventory::new();
         let mut activity = Activity::new(
             ActivityName::Woodcutting,
@@ -146,9 +170,12 @@ mod tests {
             vec![(JobName::Woodcutter, LEVEL_UP_EXPERIENCE[0] / 2)],
             vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)],
         );
-        activity.update(1000.0, &mut jobs, &mut inventory).unwrap() ;
+        activity.update(1000.0, &mut jobs, &mut inventory).unwrap();
         assert_eq!(activity.timer, 0.0);
-        assert_eq!(activity.experience, vec![(JobName::Woodcutter, LEVEL_UP_EXPERIENCE[0] / 2)]);
+        assert_eq!(
+            activity.experience,
+            vec![(JobName::Woodcutter, LEVEL_UP_EXPERIENCE[0] / 2)]
+        );
         assert_eq!(inventory.items.len(), 1);
         assert_eq!(inventory.items["Wood"].amount, 1);
         assert_eq!(jobs[0].experience, LEVEL_UP_EXPERIENCE[0] / 2);
@@ -158,9 +185,27 @@ mod tests {
     #[test]
     fn test_activity_update_jobs() {
         let mut jobs = vec![
-            Job::new(JobName::Woodcutter, "Woodcutter".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec()),  
-            Job::new(JobName::Miner, "Miner".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec()),
-            Job::new(JobName::Farmer, "Farmer".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec()),
+            Job::new(
+                JobName::Woodcutter,
+                "Woodcutter".to_string(),
+                0,
+                1,
+                LEVEL_UP_EXPERIENCE.to_vec(),
+            ),
+            Job::new(
+                JobName::Miner,
+                "Miner".to_string(),
+                0,
+                1,
+                LEVEL_UP_EXPERIENCE.to_vec(),
+            ),
+            Job::new(
+                JobName::Farmer,
+                "Farmer".to_string(),
+                0,
+                1,
+                LEVEL_UP_EXPERIENCE.to_vec(),
+            ),
         ];
         let mut inventory = Inventory::new();
         let mut activity = Activity::new(
@@ -197,22 +242,36 @@ mod tests {
         // 100 levels, each level requires 100 * 2^level experience or each level is double the previous level
         // using some custom level up experience for testing
         let level_up_experience: Vec<u128> = (0..100).map(|i| 100 * 2u128.pow(i as u32)).collect();
-        let mut jobs = vec![Job::new(JobName::Woodcutter, "Woodcutter".to_string(), 0, 1, level_up_experience.clone())];
+        let mut jobs = vec![Job::new(
+            JobName::Woodcutter,
+            "Woodcutter".to_string(),
+            0,
+            1,
+            level_up_experience.clone(),
+        )];
         let mut inventory = Inventory::new();
         let activity_duration = 1000.0;
         let activity_experience = level_up_experience[0];
-        let mut activity = Activity::new(ActivityName::Woodcutting, "Cutting down trees".to_string(), activity_duration, vec![(JobName::Woodcutter, activity_experience)], vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)]);
+        let mut activity = Activity::new(
+            ActivityName::Woodcutting,
+            "Cutting down trees".to_string(),
+            activity_duration,
+            vec![(JobName::Woodcutter, activity_experience)],
+            vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)],
+        );
         activity.update(500.0, &mut jobs, &mut inventory).unwrap();
-        
-        /// level 2 -> 100
-        /// level 3 -> 200
-        /// level 4 -> 400
-        /// level 5 -> 800
-        /// so 500 + 9700 = 10200 which should be 10 cycles and 200 time left over
-        /// 10 cycles is 100 * 10 = 1000 xp
-        /// so we should level up to 4 and have 300 xp left
-        activity.update_from_time_elapsed(9700, &mut jobs, &mut inventory).unwrap();
-        
+
+        // level 2 -> 100
+        // level 3 -> 200
+        // level 4 -> 400
+        // level 5 -> 800
+        // so 500 + 9700 = 10200 which should be 10 cycles and 200 time left over
+        // 10 cycles is 100 * 10 = 1000 xp
+        // so we should level up to 4 and have 300 xp left
+        activity
+            .update_from_time_elapsed(9700, &mut jobs, &mut inventory)
+            .unwrap();
+
         assert_eq!(activity.timer, 200.0);
         assert_eq!(inventory.items.len(), 1);
         assert_eq!(inventory.items["Wood"].amount, 10);

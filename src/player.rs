@@ -1,9 +1,8 @@
 use crate::activity::Activity;
+use crate::constants::LEVEL_UP_EXPERIENCE;
 use crate::inventory::Inventory;
-use crate::item::Item;
 use crate::job::Job;
 use crate::job::JobName;
-use crate::constants::LEVEL_UP_EXPERIENCE;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -22,9 +21,27 @@ pub struct Player {
 impl Player {
     pub fn new() -> Self {
         let jobs = vec![
-            Job::new(JobName::Woodcutter, "Cut down trees".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec()),
-            Job::new(JobName::Miner, "Mine rocks".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec()),
-            Job::new(JobName::Farmer, "Grow crops".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec()),
+            Job::new(
+                JobName::Woodcutter,
+                "Cut down trees".to_string(),
+                0,
+                1,
+                LEVEL_UP_EXPERIENCE.to_vec(),
+            ),
+            Job::new(
+                JobName::Miner,
+                "Mine rocks".to_string(),
+                0,
+                1,
+                LEVEL_UP_EXPERIENCE.to_vec(),
+            ),
+            Job::new(
+                JobName::Farmer,
+                "Grow crops".to_string(),
+                0,
+                1,
+                LEVEL_UP_EXPERIENCE.to_vec(),
+            ),
         ];
         Self {
             health: 100,
@@ -52,7 +69,11 @@ impl Player {
 
     pub fn update_from_time_elapsed(&mut self, time_elapsed: u64) -> Result<(), String> {
         match &mut self.current_activity {
-            Some(activity) => activity.update_from_time_elapsed(time_elapsed, &mut self.jobs, &mut self.inventory)?,
+            Some(activity) => activity.update_from_time_elapsed(
+                time_elapsed,
+                &mut self.jobs,
+                &mut self.inventory,
+            )?,
             None => {}
         }
         Ok(())
