@@ -6,6 +6,7 @@ mod job;
 mod player; // Keep your player module
 mod ui; // Keep your ui module // Keep your job module
 mod save;
+mod constants;
 
 use crate::activity::Activity;
 use crate::activity::ActivityName;
@@ -85,7 +86,7 @@ impl eframe::App for MyApp {
 
         // --- Game Logic using delta_time would go here ---
         // e.g., self.player.passive_update(delta_time);
-        self.player.update(delta_time);
+        self.player.update(delta_time).unwrap();
 
         // --- Draw UI and get events ---
         // Call ui::update and capture the returned event

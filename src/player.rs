@@ -20,10 +20,12 @@ pub struct Player {
 
 impl Player {
     pub fn new() -> Self {
+        // 100 levels, each level requires 100 * 2^level experience or each level is double the previous level
+        let level_up_experience: Vec<u128> = (0..100).map(|i| 100 * 2u128.pow(i as u32)).collect();
         let jobs = vec![
-            Job::new(JobName::Woodcutter, "Cut down trees".to_string(), 0),
-            Job::new(JobName::Miner, "Mine rocks".to_string(), 0),
-            Job::new(JobName::Farmer, "Grow crops".to_string(), 0),
+            Job::new(JobName::Woodcutter, "Cut down trees".to_string(), 0, 1, level_up_experience.clone()),
+            Job::new(JobName::Miner, "Mine rocks".to_string(), 0, 1, level_up_experience.clone()),
+            Job::new(JobName::Farmer, "Grow crops".to_string(), 0, 1, level_up_experience.clone()),
         ];
         Self {
             health: 100,
@@ -38,21 +40,23 @@ impl Player {
         }
     }
 
-    pub fn update(&mut self, delta_time: f32) {
+    pub fn update(&mut self, delta_time: f32) -> Result<(), String> {
         // Update player stats based on current occupation
         match &mut self.current_activity {
             Some(activity) => {
-                activity.update(delta_time, &mut self.jobs, &mut self.inventory);
+                activity.update(delta_time, &mut self.jobs, &mut self.inventory)?;
             }
             None => {}
         }
+        Ok(())
     }
 
-    pub fn update_from_time_elapsed(&mut self, time_elapsed: u64) {
+    pub fn update_from_time_elapsed(&mut self, time_elapsed: u64) -> Result<(), String> {
         match &mut self.current_activity {
-            Some(activity) => activity.update_from_time_elapsed(time_elapsed, &mut self.jobs, &mut self.inventory),
+            Some(activity) => activity.update_from_time_elapsed(time_elapsed, &mut self.jobs, &mut self.inventory)?,
             None => {}
         }
+        Ok(())
     }
 
     pub fn set_activity(&mut self, activity: Activity) {
