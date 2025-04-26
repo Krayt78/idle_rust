@@ -3,6 +3,7 @@ use crate::inventory::Inventory;
 use crate::item::Item;
 use crate::job::Job;
 use crate::job::JobName;
+use crate::constants::LEVEL_UP_EXPERIENCE;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -20,12 +21,10 @@ pub struct Player {
 
 impl Player {
     pub fn new() -> Self {
-        // 100 levels, each level requires 100 * 2^level experience or each level is double the previous level
-        let level_up_experience: Vec<u128> = (0..100).map(|i| 100 * 2u128.pow(i as u32)).collect();
         let jobs = vec![
-            Job::new(JobName::Woodcutter, "Cut down trees".to_string(), 0, 1, level_up_experience.clone()),
-            Job::new(JobName::Miner, "Mine rocks".to_string(), 0, 1, level_up_experience.clone()),
-            Job::new(JobName::Farmer, "Grow crops".to_string(), 0, 1, level_up_experience.clone()),
+            Job::new(JobName::Woodcutter, "Cut down trees".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec()),
+            Job::new(JobName::Miner, "Mine rocks".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec()),
+            Job::new(JobName::Farmer, "Grow crops".to_string(), 0, 1, LEVEL_UP_EXPERIENCE.to_vec()),
         ];
         Self {
             health: 100,

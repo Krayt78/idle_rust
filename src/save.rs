@@ -26,15 +26,17 @@ pub fn save(game_state: &GameState, player: &Player, save_name: &str) {
 }
 
 pub fn load(save_name: &str) -> Option<(GameState, Player, u64)> {
-    let file = File::open(save_name).unwrap();
-    let mut reader = BufReader::new(file);
-
-    let save: Save = match serde_json::from_reader(&mut reader) {
-        Ok(save) => save,
-        Err(_) => return None,
-    };
-
-    Some((save.game_state, save.player, save.timestamp))
+    match File::open(save_name) {
+        Ok(file) => {
+            let mut reader = BufReader::new(file);
+            let save: Save = match serde_json::from_reader(&mut reader) {
+                Ok(save) => save,
+                Err(_) => return None,
+            };
+            Some((save.game_state, save.player, save.timestamp))
+        }
+        Err(_) => None,
+    }
 }
 
 #[derive(Serialize, Deserialize)]

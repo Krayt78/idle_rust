@@ -97,7 +97,6 @@ mod tests {
     use super::*;
     use crate::constants::LEVEL_UP_EXPERIENCE;
     
-
     #[test]
     fn test_activity_new() {
         let activity = Activity::new(

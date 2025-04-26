@@ -153,7 +153,7 @@ fn show_jobs_ui(ui: &mut egui::Ui, player: &Player) {
     ui.separator();
     ui.label("Jobs:");
     for job in &player.jobs {
-        ui.label(format!("{}: {}", job.name, job.experience));
+        ui.label(format!("{}: level: {} | xp: {}", job.name, job.level, job.experience));
     }
 }
 
