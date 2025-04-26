@@ -95,7 +95,7 @@ impl eframe::App for MyApp {
 
         // --- Draw UI and get events ---
         // Call ui::update and capture the returned event
-        let ui_event = ui::update(&mut self.player, ctx, &self.game_state);
+        let ui_event = ui::update(&mut self.player, ctx, &self.game_state, &self.item_database);
 
         // --- Handle events returned from UI ---
         if let Some(button_clicked) = ui_event {

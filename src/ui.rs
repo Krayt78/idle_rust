@@ -1,6 +1,7 @@
 use crate::game_state::GameState;
 use crate::player::Player;
 use eframe::egui;
+use crate::utils::ItemDatabase;
 
 pub enum ButtonClicked {
     Activity,
@@ -18,6 +19,7 @@ pub fn update(
     player: &mut Player,
     ctx: &egui::Context,
     game_state: &GameState,
+    item_database: &ItemDatabase,
 ) -> Option<ButtonClicked> {
     let mut button_clicked: Option<ButtonClicked> = None; // Initialize event variable
 
@@ -27,16 +29,16 @@ pub fn update(
         if button_clicked.is_none() {
             match game_state {
                 GameState::Activity => {
-                    button_clicked = show_activity_ui(ui, player);
+                    button_clicked = show_activity_ui(ui, player, item_database);
                 }
                 GameState::Crafting => {
-                    button_clicked = show_crafting_ui(ui, player);
+                    button_clicked = show_crafting_ui(ui, player, item_database);
                 }
                 GameState::Inventory => {
-                    button_clicked = show_inventory_ui(ui, player);
+                    button_clicked = show_inventory_ui(ui, player, item_database);
                 }
                 GameState::Quest => {
-                    button_clicked = show_quest_ui(ui, player);
+                    button_clicked = show_quest_ui(ui, player, item_database);
                 }
                 _ => {}
             }
@@ -113,7 +115,11 @@ fn show_header_ui(ui: &mut egui::Ui, game_state: &GameState) -> Option<ButtonCli
     button_clicked
 }
 
-fn show_activity_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClicked> {
+fn show_activity_ui(
+    ui: &mut egui::Ui,
+    player: &mut Player,
+    item_database: &ItemDatabase,
+) -> Option<ButtonClicked> {
     let mut button_clicked = None; // Initialize as None
 
     let current_activity = player.get_activity();
@@ -137,7 +143,7 @@ fn show_activity_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClic
     }
 
     show_jobs_ui(ui, &player);
-    show_player_stats_ui(ui, &player);
+    show_player_stats_ui(ui, &player, item_database);
 
     ui.separator();
     ui.label("Choose Activity:");
@@ -157,19 +163,31 @@ fn show_activity_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClic
     button_clicked // Return the result (None if no button clicked)
 }
 
-fn show_crafting_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClicked> {
+fn show_crafting_ui(
+    ui: &mut egui::Ui,
+    player: &mut Player,
+    item_database: &ItemDatabase,
+) -> Option<ButtonClicked> {
     let mut button_clicked = None;
 
     button_clicked
 }
 
-fn show_inventory_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClicked> {
+fn show_inventory_ui(
+    ui: &mut egui::Ui,
+    player: &mut Player,
+    item_database: &ItemDatabase,
+) -> Option<ButtonClicked> {
     let mut button_clicked = None;
 
     button_clicked
 }
 
-fn show_quest_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClicked> {
+fn show_quest_ui(
+    ui: &mut egui::Ui,
+    player: &mut Player,
+    item_database: &ItemDatabase,
+) -> Option<ButtonClicked> {
     let mut button_clicked = None;
 
     button_clicked
@@ -186,7 +204,11 @@ fn show_jobs_ui(ui: &mut egui::Ui, player: &Player) {
     }
 }
 
-fn show_player_stats_ui(ui: &mut egui::Ui, player: &Player) {
+fn show_player_stats_ui(
+    ui: &mut egui::Ui,
+    player: &Player,
+    item_database: &ItemDatabase,
+) {
     ui.separator();
     ui.label("Player Stats");
     ui.label(format!("Health: {}", player.health));
@@ -195,7 +217,18 @@ fn show_player_stats_ui(ui: &mut egui::Ui, player: &Player) {
     ui.label(format!("Defense: {}", player.defense));
     ui.label(format!("Level: {}", player.level));
     ui.label(format!("Gold: {}", player.gold));
-    ui.label(format!("Inventory: {}", player.inventory));
+    // Display inventory with names
+    ui.label("Inventory:");
+    if player.inventory.items.is_empty() {
+        ui.label("  (Empty)");
+    } else {
+        for (id, item) in &player.inventory.items {
+            let item_name = item_database
+                .get(id)
+                .map_or("Unknown Item", |data| &data.name);
+            ui.label(format!("  {}: {}", item_name, item.quantity));
+        }
+    }
     let current_activity = match &player.current_activity {
         Some(act) => format!("{:?}", act.name),
         None => "Nothing".to_string(),
