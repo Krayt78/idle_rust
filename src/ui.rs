@@ -11,6 +11,7 @@ pub enum ButtonClicked {
     Mining,
     Woodcutting,
     Farming,
+    Quest,
 }
 
 pub fn update(
@@ -33,6 +34,9 @@ pub fn update(
                 }
                 GameState::Inventory => {
                     button_clicked = show_inventory_ui(ui, player);
+                }
+                GameState::Quest => {
+                    button_clicked = show_quest_ui(ui, player);
                 }
                 _ => {}
             }
@@ -63,6 +67,9 @@ fn show_header_ui(ui: &mut egui::Ui, game_state: &GameState) -> Option<ButtonCli
                 if ui.button("Inventory").clicked() {
                     button_clicked = Some(ButtonClicked::Inventory);
                 }
+                if ui.button("Quest").clicked() {
+                    button_clicked = Some(ButtonClicked::Quest);
+                }
             }
             GameState::Crafting => {
                 if ui.button("Activity").clicked() {
@@ -71,6 +78,9 @@ fn show_header_ui(ui: &mut egui::Ui, game_state: &GameState) -> Option<ButtonCli
                 ui.add_enabled(false, egui::Button::new("Crafting"));
                 if ui.button("Inventory").clicked() {
                     button_clicked = Some(ButtonClicked::Inventory);
+                }
+                if ui.button("Quest").clicked() {
+                    button_clicked = Some(ButtonClicked::Quest);
                 }
             }
             GameState::Inventory => {
@@ -81,6 +91,21 @@ fn show_header_ui(ui: &mut egui::Ui, game_state: &GameState) -> Option<ButtonCli
                     button_clicked = Some(ButtonClicked::Crafting);
                 }
                 ui.add_enabled(false, egui::Button::new("Inventory"));
+                if ui.button("Quest").clicked() {
+                    button_clicked = Some(ButtonClicked::Quest);
+                }
+            }
+            GameState::Quest => {
+                if ui.button("Activity").clicked() {
+                    button_clicked = Some(ButtonClicked::Activity);
+                }
+                if ui.button("Crafting").clicked() {
+                    button_clicked = Some(ButtonClicked::Crafting);
+                }
+                if ui.button("Inventory").clicked() {
+                    button_clicked = Some(ButtonClicked::Inventory);
+                }
+                ui.add_enabled(false, egui::Button::new("Quest"));
             }
         }
     });
@@ -139,6 +164,12 @@ fn show_crafting_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClic
 }
 
 fn show_inventory_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClicked> {
+    let mut button_clicked = None;
+
+    button_clicked
+}
+
+fn show_quest_ui(ui: &mut egui::Ui, player: &mut Player) -> Option<ButtonClicked> {
     let mut button_clicked = None;
 
     button_clicked

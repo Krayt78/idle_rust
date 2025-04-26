@@ -6,6 +6,7 @@ pub enum GameState {
     Activity,
     Crafting,
     Inventory,
+    Quest,
 }
 
 impl GameState {
@@ -20,6 +21,7 @@ impl fmt::Display for GameState {
             Self::Activity => write!(f, "Activity"),
             Self::Crafting => write!(f, "Crafting"),
             Self::Inventory => write!(f, "Inventory"),
+            Self::Quest => write!(f, "Quest"),
         }
     }
 }

@@ -3,6 +3,7 @@ use crate::constants::LEVEL_UP_EXPERIENCE;
 use crate::inventory::Inventory;
 use crate::job::Job;
 use crate::job::JobName;
+use crate::item::Item;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -93,5 +94,22 @@ impl Player {
 
     pub fn get_inventory(&self) -> &Inventory {
         &self.inventory
+    }
+
+    pub fn add_experience(&mut self, job_name: JobName, experience: u128) {
+        let job = self.jobs.iter_mut().find(|job| job.name == job_name).unwrap();
+        job.add_experience(experience);
+    }
+
+    pub fn add_item(&mut self, item: &Item) {
+        self.inventory.add_item(item);
+    }
+
+    pub fn add_gold(&mut self, amount: u128) {
+        self.inventory.add_gold(amount);
+    }
+
+    pub fn remove_gold(&mut self, amount: u128) -> Result<(), String> {
+        self.inventory.remove_gold(amount)
     }
 }

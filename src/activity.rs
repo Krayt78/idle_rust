@@ -113,7 +113,7 @@ mod tests {
             "Cutting down trees".to_string(),
             1000.0,
             vec![(JobName::Woodcutter, 100)],
-            vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)],
+            vec![Item::new(1, 1)],
         );
         assert_eq!(activity.name, ActivityName::Woodcutting);
         assert_eq!(activity.description, "Cutting down trees");
@@ -121,7 +121,7 @@ mod tests {
         assert_eq!(activity.experience, vec![(JobName::Woodcutter, 100)]);
         assert_eq!(
             activity.items,
-            vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)]
+            vec![Item::new(1, 1)]
         );
     }
 
@@ -140,7 +140,7 @@ mod tests {
             "Cutting down trees".to_string(),
             1000.0,
             vec![(JobName::Woodcutter, LEVEL_UP_EXPERIENCE[0] / 2)],
-            vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)],
+            vec![Item::new(1, 1)],
         );
         activity.update(500.0, &mut jobs, &mut inventory).unwrap();
         assert_eq!(activity.timer, 500.0);
@@ -163,12 +163,13 @@ mod tests {
             LEVEL_UP_EXPERIENCE.to_vec(),
         )];
         let mut inventory = Inventory::new();
+        let item = Item::new(1, 1);
         let mut activity = Activity::new(
             ActivityName::Woodcutting,
             "Cutting down trees".to_string(),
             1000.0,
             vec![(JobName::Woodcutter, LEVEL_UP_EXPERIENCE[0] / 2)],
-            vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)],
+            vec![item.clone()],
         );
         activity.update(1000.0, &mut jobs, &mut inventory).unwrap();
         assert_eq!(activity.timer, 0.0);
@@ -177,7 +178,7 @@ mod tests {
             vec![(JobName::Woodcutter, LEVEL_UP_EXPERIENCE[0] / 2)]
         );
         assert_eq!(inventory.items.len(), 1);
-        assert_eq!(inventory.items["Wood"].amount, 1);
+        assert_eq!(inventory.items[&item.id].quantity, 1);
         assert_eq!(jobs[0].experience, LEVEL_UP_EXPERIENCE[0] / 2);
         assert_eq!(jobs[0].level, 1);
     }
@@ -208,6 +209,9 @@ mod tests {
             ),
         ];
         let mut inventory = Inventory::new();
+        let wood = Item::new(1, 1);
+        let stone = Item::new(2, 2);
+        let wheat = Item::new(3, 3);
         let mut activity = Activity::new(
             ActivityName::Woodcutting,
             "Cutting down trees".to_string(),
@@ -218,9 +222,9 @@ mod tests {
                 (JobName::Farmer, LEVEL_UP_EXPERIENCE[0] * 2),
             ],
             vec![
-                Item::new("Wood".to_string(), "Wood".to_string(), 1),
-                Item::new("Stone".to_string(), "Stone".to_string(), 2),
-                Item::new("Wheat".to_string(), "Wheat".to_string(), 3),
+                wood.clone(),
+                stone.clone(),
+                wheat.clone(),
             ],
         );
 
@@ -232,9 +236,9 @@ mod tests {
         assert_eq!(jobs[2].experience, LEVEL_UP_EXPERIENCE[0]);
         assert_eq!(jobs[2].level, 2);
         assert_eq!(inventory.items.len(), 3);
-        assert_eq!(inventory.items["Wood"].amount, 1);
-        assert_eq!(inventory.items["Stone"].amount, 2);
-        assert_eq!(inventory.items["Wheat"].amount, 3);
+        assert_eq!(inventory.items[&wood.id].quantity, 1);
+        assert_eq!(inventory.items[&stone.id].quantity, 2);
+        assert_eq!(inventory.items[&wheat.id].quantity, 3);
     }
 
     #[test]
@@ -250,6 +254,7 @@ mod tests {
             level_up_experience.clone(),
         )];
         let mut inventory = Inventory::new();
+        let wood = Item::new(1, 1);
         let activity_duration = 1000.0;
         let activity_experience = level_up_experience[0];
         let mut activity = Activity::new(
@@ -257,7 +262,7 @@ mod tests {
             "Cutting down trees".to_string(),
             activity_duration,
             vec![(JobName::Woodcutter, activity_experience)],
-            vec![Item::new("Wood".to_string(), "Wood".to_string(), 1)],
+            vec![wood.clone()],
         );
         activity.update(500.0, &mut jobs, &mut inventory).unwrap();
 
@@ -274,7 +279,7 @@ mod tests {
 
         assert_eq!(activity.timer, 200.0);
         assert_eq!(inventory.items.len(), 1);
-        assert_eq!(inventory.items["Wood"].amount, 10);
+        assert_eq!(inventory.items[&wood.id].quantity, 10);
         assert_eq!(jobs[0].experience, 300);
         assert_eq!(jobs[0].level, 4);
     }

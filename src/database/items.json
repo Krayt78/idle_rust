@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "name": "Log",
+    "description": "A Log."
+  },
+  {
+    "id": 2,
+    "name": "Stone",
+    "description": "A chunk of rock."
+  },
+  {
+    "id": 3,
+    "name": "Potato",
+    "description": "A potato."
+  }
+]

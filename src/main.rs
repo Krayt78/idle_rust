@@ -7,6 +7,8 @@ mod job;
 mod player;
 mod save;
 mod ui;
+mod quest;
+mod utils;
 
 use crate::activity::Activity;
 use crate::activity::ActivityName;
@@ -16,6 +18,8 @@ use crate::job::JobName;
 use crate::ui::ButtonClicked;
 use eframe::egui;
 use player::Player;
+use crate::utils::load_item_database;
+use crate::utils::ItemDatabase;
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
@@ -59,7 +63,7 @@ fn main() -> Result<(), eframe::Error> {
 struct MyApp {
     player: Player,
     game_state: GameState,
-    // You might add other state here later, like last update time for delta_t
+    item_database: ItemDatabase,
 }
 
 impl MyApp {
@@ -67,7 +71,15 @@ impl MyApp {
         //get the player's current activity and update it based on the time elapsed
         player.update_from_time_elapsed(time_elapsed);
 
-        Self { player, game_state }
+        let item_database = match load_item_database() {
+            Ok(item_database) => item_database,
+            Err(e) => {
+                println!("Error loading item database: {}", e);
+                panic!("Failed to load item database");
+            }
+        };
+
+        Self { player, game_state, item_database }
     }
 }
 
@@ -103,7 +115,7 @@ impl eframe::App for MyApp {
                         "Mining".to_string(),
                         10.0,
                         vec![(JobName::Miner, 100)],
-                        vec![Item::new("Stone".to_string(), "Stone".to_string(), 1)],
+                        vec![Item::new(2, 1)],
                     ));
                 }
                 ButtonClicked::Woodcutting => {
@@ -112,7 +124,7 @@ impl eframe::App for MyApp {
                         "Woodcutting".to_string(),
                         10.0,
                         vec![(JobName::Woodcutter, 100)],
-                        vec![Item::new("Log".to_string(), "Log".to_string(), 1)],
+                        vec![Item::new(1, 1)],
                     ));
                 }
                 ButtonClicked::Farming => {
@@ -121,7 +133,7 @@ impl eframe::App for MyApp {
                         "Farming".to_string(),
                         10.0,
                         vec![(JobName::Farmer, 100)],
-                        vec![Item::new("Potato".to_string(), "Potato".to_string(), 1)],
+                        vec![Item::new(3, 1)],
                     ));
                 }
                 _ => {}
