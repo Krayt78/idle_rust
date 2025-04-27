@@ -13,6 +13,7 @@ mod utils;
 use crate::activity::Activity;
 use crate::activity::ActivityName;
 use crate::game_state::GameState;
+use crate::game_state::QuestState;
 use crate::item::Item;
 use crate::job::JobName;
 use crate::ui::ButtonClicked;
@@ -159,6 +160,15 @@ impl eframe::App for MyApp {
                         vec![(JobName::Farmer, 100)],
                         vec![Item::new(3, 1)],
                     ));
+                }
+                ButtonClicked::Quest => {
+                    self.game_state = GameState::Quest(QuestState::Available);
+                }
+                ButtonClicked::AvailableQuests => {
+                    self.game_state = GameState::Quest(QuestState::Available);
+                }
+                ButtonClicked::CompletedQuests => {
+                    self.game_state = GameState::Quest(QuestState::Completed);
                 }
                 _ => {}
             }

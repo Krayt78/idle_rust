@@ -2,11 +2,17 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+pub enum QuestState {
+    Available,
+    Completed,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub enum GameState {
     Activity,
     Crafting,
     Inventory,
-    Quest,
+    Quest(QuestState),
 }
 
 impl GameState {
@@ -21,7 +27,7 @@ impl fmt::Display for GameState {
             Self::Activity => write!(f, "Activity"),
             Self::Crafting => write!(f, "Crafting"),
             Self::Inventory => write!(f, "Inventory"),
-            Self::Quest => write!(f, "Quest"),
+            Self::Quest(_) => write!(f, "Quest"),
         }
     }
 }

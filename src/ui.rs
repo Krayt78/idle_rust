@@ -5,6 +5,7 @@ use crate::utils::ItemDatabase;
 use crate::utils::QuestDatabase;
 use crate::quest::Quest;
 use crate::quest::QuestData;
+use crate::game_state::QuestState;
 pub enum ButtonClicked {
     Activity,
     Crafting,
@@ -15,6 +16,8 @@ pub enum ButtonClicked {
     Woodcutting,
     Farming,
     Quest,
+    AvailableQuests,
+    CompletedQuests,
 }
 
 pub fn update(
@@ -41,8 +44,11 @@ pub fn update(
                 GameState::Inventory => {
                     button_clicked = show_inventory_ui(ui, player, item_database);
                 }
-                GameState::Quest => {
-                    button_clicked = show_quest_ui(ui, player, quests, quest_database, item_database);
+                GameState::Quest(QuestState::Available) => {
+                    button_clicked = show_available_quests_ui(ui, quests, quest_database);
+                }
+                GameState::Quest(QuestState::Completed) => {
+                    button_clicked = show_completed_quests_ui(ui, quests, quest_database);
                 }
                 _ => {}
             }
@@ -101,7 +107,7 @@ fn show_header_ui(ui: &mut egui::Ui, game_state: &GameState) -> Option<ButtonCli
                     button_clicked = Some(ButtonClicked::Quest);
                 }
             }
-            GameState::Quest => {
+            GameState::Quest(_) => {
                 if ui.button("Activity").clicked() {
                     button_clicked = Some(ButtonClicked::Activity);
                 }
@@ -187,25 +193,89 @@ fn show_inventory_ui(
     button_clicked
 }
 
-fn show_quest_ui(
+fn show_quests_ui(
     ui: &mut egui::Ui,
-    player: &mut Player,
     quests: &Vec<Quest>,
     quest_database: &QuestDatabase,
-    item_database: &ItemDatabase,
+) -> Option<ButtonClicked> {
+    let mut button_clicked = None; // Initialize as None
+
+    // Check buttons and store the choice if clicked
+    if ui.button("Available Quests").clicked() {
+        button_clicked = Some(ButtonClicked::AvailableQuests);
+    }
+    if ui.button("Completed Quests").clicked() {
+        button_clicked = Some(ButtonClicked::CompletedQuests);
+    }
+
+    button_clicked // Return the result (None if no button clicked)
+}
+
+fn show_available_quests_ui(
+    ui: &mut egui::Ui,
+    quests: &Vec<Quest>,
+    quest_database: &QuestDatabase,
 ) -> Option<ButtonClicked> {
     let mut button_clicked = None;
 
-    for quest in quests {
-        let quest_data = quest_database.get(&quest.id).unwrap();
-        quest_ui_component(ui, quest, quest_data);
+    ui.separator();
+    ui.label("Available Quests");
+    ui.separator();
+    // Check buttons and store the choice if clicked
+    ui.add_enabled(false, egui::Button::new("Available Quests"));
+    if ui.button("Completed Quests").clicked() {
+        button_clicked = Some(ButtonClicked::CompletedQuests);
     }
+    for quest in quests {
+        if !quest.completed {
+            let quest_data = quest_database.get(&quest.id).unwrap();
+            quest_ui_component(ui, quest_data);
+        }        
+    }
+
+    
 
     button_clicked
 }
 
-fn quest_ui_component(ui: &mut egui::Ui, quest: &Quest, quest_data: &QuestData) {
-   //todo: implement quest ui component
+fn show_completed_quests_ui(
+    ui: &mut egui::Ui,
+    quests: &Vec<Quest>,
+    quest_database: &QuestDatabase,
+) -> Option<ButtonClicked> {
+    let mut button_clicked = None;
+
+    ui.separator();
+    ui.label("Completed Quests");
+    ui.separator();
+    if ui.button("Available Quests").clicked() {
+        button_clicked = Some(ButtonClicked::AvailableQuests);
+    }
+    ui.add_enabled(false, egui::Button::new("Completed Quests"));
+    for quest in quests {
+        if quest.completed {
+            let quest_data = quest_database.get(&quest.id).unwrap();
+            quest_ui_component(ui, quest_data);
+        }
+    }   
+
+    button_clicked
+}
+
+fn quest_ui_component(ui: &mut egui::Ui, quest_data: &QuestData) {
+        ui.label(format!("{}", quest_data.name));
+        ui.label(format!("{}", quest_data.description));
+        let mut reward_formatted = String::new();
+        if let Some(experience) = &quest_data.reward.experience {
+            reward_formatted = format!("{}", experience.job);
+        }
+        if let Some(items) = &quest_data.reward.items {
+            reward_formatted = format!("{}", items.len());
+        }
+        if let Some(gold) = &quest_data.reward.gold {
+            reward_formatted = format!("{}", gold);
+        }
+        ui.label(format!("Reward: {}", reward_formatted));
 }
 
 fn show_jobs_ui(ui: &mut egui::Ui, player: &Player) {
