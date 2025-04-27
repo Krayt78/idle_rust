@@ -45,10 +45,10 @@ pub fn update(
                     button_clicked = show_inventory_ui(ui, player, item_database);
                 }
                 GameState::Quest(QuestState::Available) => {
-                    button_clicked = show_available_quests_ui(ui, quests, quest_database);
+                    button_clicked = show_available_quests_ui(ui, quests, quest_database, item_database, player);
                 }
                 GameState::Quest(QuestState::Completed) => {
-                    button_clicked = show_completed_quests_ui(ui, quests, quest_database);
+                    button_clicked = show_completed_quests_ui(ui, quests, quest_database, item_database, player);
                 }
                 _ => {}
             }
@@ -211,29 +211,84 @@ fn show_quests_ui(
     button_clicked // Return the result (None if no button clicked)
 }
 
+// Helper function to format quest goals, showing progress
+fn format_goal(goal: &crate::quest::Goal, item_database: &ItemDatabase, player: &Player) -> String {
+    match &goal.objective {
+        crate::quest::Objective::CollectItem(item_id) => {
+            let item_name = item_database.get(item_id).map_or("Unknown Item", |d| d.name.as_str());
+            let current = player.inventory.get_item_quantity(*item_id);
+            format!("Collect {} {} ({}/{})", goal.required_amount, item_name, current, goal.required_amount)
+        }
+        crate::quest::Objective::CollectGold() => {
+            let current = player.inventory.gold;
+            format!("Collect {} Gold ({}/{})", goal.required_amount, current, goal.required_amount)
+        }
+        crate::quest::Objective::ReachJobLevel(job_name) => {
+            // Use u128::from to ensure type compatibility for comparison display
+            let current = player.get_job(job_name.clone()).map_or(0, |j| u128::from(j.level));
+            format!("Reach Level {} in {:?} ({}/{})", goal.required_amount, job_name, current, goal.required_amount)
+        }
+        crate::quest::Objective::ReachLevel() => {
+             // Use u128::from to ensure type compatibility for comparison display
+            let current = u128::from(player.level);
+            format!("Reach Player Level {} ({}/{})", goal.required_amount, current, goal.required_amount)
+        }
+    }
+}
+
+// Helper function to format quest rewards
+fn format_reward(reward: &crate::quest::Reward, item_database: &ItemDatabase) -> String {
+    let mut parts = Vec::new();
+    // Use the tuple format as per the current quest.rs code
+    if let Some(experience) = &reward.experience {
+        parts.push(format!("{} {:?} XP", experience.amount, experience.job));
+    }
+    if let Some(items) = &reward.items {
+        for item in items {
+             let item_name = item_database.get(&item.id).map_or("Unknown Item", |d| d.name.as_str());
+             parts.push(format!("{}x {}", item.quantity, item_name));
+        }
+    }
+    if let Some(gold) = &reward.gold {
+        parts.push(format!("{} Gold", gold));
+    }
+    if parts.is_empty() {
+        "Nothing".to_string()
+    } else {
+        parts.join(", ")
+    }
+}
+
 fn show_available_quests_ui(
     ui: &mut egui::Ui,
     quests: &Vec<Quest>,
     quest_database: &QuestDatabase,
+    item_database: &ItemDatabase,
+    player: &Player,
 ) -> Option<ButtonClicked> {
     let mut button_clicked = None;
+    let mut quest_to_complete_id: Option<u128> = None;
 
     ui.separator();
     ui.label("Available Quests");
     ui.separator();
-    // Check buttons and store the choice if clicked
     ui.add_enabled(false, egui::Button::new("Available Quests"));
     if ui.button("Completed Quests").clicked() {
         button_clicked = Some(ButtonClicked::CompletedQuests);
     }
-    for quest in quests {
-        if !quest.completed {
-            let quest_data = quest_database.get(&quest.id).unwrap();
-            quest_ui_component(ui, quest_data);
-        }        
-    }
+    ui.separator();
 
-    
+    egui::ScrollArea::vertical().show(ui, |ui| {
+        for quest in quests {
+            if !quest.completed {
+                let quest_data = quest_database.get(&quest.id).unwrap();
+                if quest_ui_component(ui, quest_data, item_database, player, true) {
+                    quest_to_complete_id = Some(quest.id);
+                }
+                ui.separator();
+            }
+        }
+    });
 
     button_clicked
 }
@@ -242,6 +297,8 @@ fn show_completed_quests_ui(
     ui: &mut egui::Ui,
     quests: &Vec<Quest>,
     quest_database: &QuestDatabase,
+    item_database: &ItemDatabase,
+    player: &Player,
 ) -> Option<ButtonClicked> {
     let mut button_clicked = None;
 
@@ -252,30 +309,61 @@ fn show_completed_quests_ui(
         button_clicked = Some(ButtonClicked::AvailableQuests);
     }
     ui.add_enabled(false, egui::Button::new("Completed Quests"));
-    for quest in quests {
-        if quest.completed {
-            let quest_data = quest_database.get(&quest.id).unwrap();
-            quest_ui_component(ui, quest_data);
+    ui.separator();
+
+    egui::ScrollArea::vertical().show(ui, |ui| {
+        for quest in quests {
+            if quest.completed {
+                let quest_data = quest_database.get(&quest.id).unwrap();
+                quest_ui_component(ui, quest_data, item_database, player, false);
+                ui.separator();
+            }
         }
-    }   
+    });
 
     button_clicked
 }
 
-fn quest_ui_component(ui: &mut egui::Ui, quest_data: &QuestData) {
-        ui.label(format!("{}", quest_data.name));
-        ui.label(format!("{}", quest_data.description));
-        let mut reward_formatted = String::new();
-        if let Some(experience) = &quest_data.reward.experience {
-            reward_formatted = format!("{}", experience.job);
+fn quest_ui_component(
+    ui: &mut egui::Ui,
+    quest_data: &QuestData,
+    item_database: &ItemDatabase,
+    player: &Player,
+    is_completable: bool,
+) -> bool {
+    let mut clicked = false;
+    egui::Frame::group(ui.style()).show(ui, |ui| {
+        ui.set_min_width(ui.available_width() * 0.9);
+
+        ui.label(egui::RichText::new(&quest_data.name).strong());
+        ui.separator();
+
+        ui.label(&quest_data.description);
+        ui.add_space(4.0);
+
+        ui.label(format!("Goal: {}", format_goal(&quest_data.goal, item_database, player)));
+        ui.add_space(4.0);
+
+        ui.label(format!("Reward: {}", format_reward(&quest_data.reward, item_database)));
+
+        if is_completable {
+            ui.add_space(8.0);
+            ui.horizontal(|ui|{
+                ui.add_space(ui.available_width() * 0.25);
+                if ui.add_sized([ui.available_width() * 0.5, 20.0], egui::Button::new("Attempt Completion")).clicked() {
+                    clicked = true;
+                }
+             });
+        } else {
+            ui.add_space(8.0);
+            ui.horizontal(|ui|{
+                ui.add_space(ui.available_width() * 0.3);
+                ui.label(egui::RichText::new("(Quest Completed)").color(egui::Color32::DARK_GREEN));
+            });
         }
-        if let Some(items) = &quest_data.reward.items {
-            reward_formatted = format!("{}", items.len());
-        }
-        if let Some(gold) = &quest_data.reward.gold {
-            reward_formatted = format!("{}", gold);
-        }
-        ui.label(format!("Reward: {}", reward_formatted));
+    });
+    ui.add_space(5.0);
+    clicked
 }
 
 fn show_jobs_ui(ui: &mut egui::Ui, player: &Player) {
