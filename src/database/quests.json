@@ -1,8 +1,8 @@
 [
     {
       "id": 1,
-      "name": "First Quest",
-      "description": "Collect 10 logs.",
+      "name": "Your First Log",
+      "description": "Gather your first log.",
       "reward": {
         "experience": {
           "job": "Woodcutter",
@@ -13,7 +13,41 @@
         "objective": {
             "CollectItem": 1
         },
-        "required_amount": 10
+        "required_amount": 1
+      }
+    },
+    {
+      "id": 2,
+      "name": "Your First Stone",
+      "description": "Gather your first stone.",
+      "reward": {
+        "experience": {
+          "job": "Miner",
+          "amount": 100
+        }
+      },
+      "goal": {
+        "objective": {
+            "CollectItem": 2
+        },
+        "required_amount": 1
+      }
+    },
+    {
+      "id": 3,
+      "name": "Your First Potato",
+      "description": "Gather your first potato.",
+      "reward": {
+        "experience": {
+          "job": "Farmer",
+          "amount": 100
+        }
+      },  
+      "goal": {
+        "objective": {
+            "CollectItem": 3
+        },
+        "required_amount": 1
       }
     }
 ]

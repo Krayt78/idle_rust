@@ -170,6 +170,17 @@ impl eframe::App for MyApp {
                 ButtonClicked::CompletedQuests => {
                     self.game_state = GameState::Quest(QuestState::Completed);
                 }
+                ButtonClicked::QuestCompleteClicked(quest_id) => {
+                    match self.quests.iter_mut().find(|quest| quest.id == quest_id) {
+                        Some(quest) => {
+                            quest.complete(&mut self.player, &self.quest_database);
+                        }
+                        None => {
+                            println!("Quest not found");
+                            return;
+                        }
+                    }
+                }
                 _ => {}
             }
         }

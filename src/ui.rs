@@ -18,6 +18,7 @@ pub enum ButtonClicked {
     Quest,
     AvailableQuests,
     CompletedQuests,
+    QuestCompleteClicked(u128),
 }
 
 pub fn update(
@@ -236,6 +237,40 @@ fn format_goal(goal: &crate::quest::Goal, item_database: &ItemDatabase, player: 
     }
 }
 
+fn is_goal_reached(goal: &crate::quest::Goal, player: &Player) -> bool {
+    match &goal.objective {
+        crate::quest::Objective::CollectItem(item_id) => {
+            player.inventory.get_item_quantity(*item_id) >= goal.required_amount
+        }
+        crate::quest::Objective::CollectGold() => {
+            player.inventory.gold >= goal.required_amount
+        }
+        crate::quest::Objective::ReachJobLevel(job_name) => {
+            player.get_job(job_name.clone()).map_or(false, |j| u128::from(j.level) >= goal.required_amount)
+        }
+        crate::quest::Objective::ReachLevel() => {
+            u128::from(player.level) >= goal.required_amount
+        }
+    }
+}
+
+fn format_completed_goal(goal: &crate::quest::Goal, item_database: &ItemDatabase, player: &Player) -> String {
+    match &goal.objective {
+        crate::quest::Objective::CollectItem(item_id) => {
+            let item_name = item_database.get(item_id).map_or("Unknown Item", |d| d.name.as_str());
+            format!("Collect {} {}", goal.required_amount, item_name)
+        }
+        crate::quest::Objective::CollectGold() => {
+            format!("Collect {} Gold", goal.required_amount)
+        }
+        crate::quest::Objective::ReachJobLevel(job_name) => {
+            format!("Reach Level {} in {:?}", goal.required_amount, job_name)
+        }
+        crate::quest::Objective::ReachLevel() => {
+            format!("Reach Player Level {}", goal.required_amount)
+        }
+    }
+}
 // Helper function to format quest rewards
 fn format_reward(reward: &crate::quest::Reward, item_database: &ItemDatabase) -> String {
     let mut parts = Vec::new();
@@ -283,7 +318,7 @@ fn show_available_quests_ui(
             if !quest.completed {
                 let quest_data = quest_database.get(&quest.id).unwrap();
                 if quest_ui_component(ui, quest_data, item_database, player, true) {
-                    quest_to_complete_id = Some(quest.id);
+                    button_clicked = Some(ButtonClicked::QuestCompleteClicked(quest.id));
                 }
                 ui.separator();
             }
@@ -341,19 +376,26 @@ fn quest_ui_component(
         ui.label(&quest_data.description);
         ui.add_space(4.0);
 
-        ui.label(format!("Goal: {}", format_goal(&quest_data.goal, item_database, player)));
-        ui.add_space(4.0);
+        if is_completable {
+            ui.label(format!("Goal: {}", format_goal(&quest_data.goal, item_database, player)));
+            ui.add_space(4.0);
+        } else {
+            ui.label(format!("Goal: {}", format_completed_goal(&quest_data.goal, item_database, player)));
+            ui.add_space(4.0);
+        }
 
         ui.label(format!("Reward: {}", format_reward(&quest_data.reward, item_database)));
-
+         
         if is_completable {
-            ui.add_space(8.0);
-            ui.horizontal(|ui|{
-                ui.add_space(ui.available_width() * 0.25);
-                if ui.add_sized([ui.available_width() * 0.5, 20.0], egui::Button::new("Attempt Completion")).clicked() {
-                    clicked = true;
-                }
-             });
+            if is_goal_reached(&quest_data.goal, player) {
+                ui.add_space(8.0);
+                ui.horizontal(|ui|{
+                    ui.add_space(ui.available_width() * 0.25);
+                    if ui.add_sized([ui.available_width() * 0.5, 20.0], egui::Button::new("Attempt Completion")).clicked() {
+                        clicked = true;
+                    }
+                });
+            }
         } else {
             ui.add_space(8.0);
             ui.horizontal(|ui|{
