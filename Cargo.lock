@@ -1129,6 +1129,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "event_forge"
+version = "0.1.0"
+source = "git+https://github.com/Krayt78/event_forge.git#050cbb7f4c1c4e3341770ee724adf8877f0f093f"
+
+[[package]]
 name = "fastrand"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1647,6 +1652,7 @@ name = "idle_rust"
 version = "0.1.0"
 dependencies = [
  "eframe",
+ "event_forge",
  "serde",
  "serde_json",
 ]
