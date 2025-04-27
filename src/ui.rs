@@ -216,7 +216,7 @@ fn show_player_stats_ui(
     ui.label(format!("Attack Power: {}", player.attack_power));
     ui.label(format!("Defense: {}", player.defense));
     ui.label(format!("Level: {}", player.level));
-    ui.label(format!("Gold: {}", player.gold));
+    ui.label(format!("Gold: {}", player.inventory.gold));
     // Display inventory with names
     ui.label("Inventory:");
     if player.inventory.items.is_empty() {

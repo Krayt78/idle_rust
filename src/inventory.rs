@@ -41,12 +41,12 @@ impl Inventory {
         }
     }
 
-    pub fn get_item(&self, item: Item) -> Option<&Item> {
-        self.items.get(&item.id)
+    pub fn get_item(&self, item_id: u128) -> Option<&Item> {
+        self.items.get(&item_id)
     }
 
-    pub fn get_item_quantity(&self, item: Item) -> u128 {
-        self.get_item(item).map_or(0, |i| i.quantity)
+    pub fn get_item_quantity(&self, item_id: u128) -> u128 {
+        self.get_item(item_id).map_or(0, |i| i.quantity)
     }
 
     pub fn add_gold(&mut self, amount: u128) {

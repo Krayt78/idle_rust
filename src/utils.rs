@@ -1,6 +1,8 @@
 use crate::item::ItemData;
 use std::collections::HashMap;
 use crate::constants::ITEM_DATABASE_PATH;
+use crate::constants::QUEST_DATABASE_PATH;
+use crate::quest::QuestData;
 use std::fs::File;
 use std::io::BufReader;
 
@@ -21,6 +23,21 @@ pub fn load_item_database() -> Result<ItemDatabase, Box<dyn std::error::Error>> 
     Ok(item_db)
 }
 
+pub type QuestDatabase = HashMap<u128, QuestData>;
+pub fn load_quest_database() -> Result<QuestDatabase, Box<dyn std::error::Error>> {
+    let file = File::open(QUEST_DATABASE_PATH)?;
+    let reader = BufReader::new(file);
+
+    let quests_vec: Vec<QuestData> = serde_json::from_reader(reader)?;
+
+    let mut quest_db = QuestDatabase::new();
+    for quest in quests_vec {
+        quest_db.insert(quest.id, quest);
+    }
+
+    Ok(quest_db)
+}
+
 mod tests {
     use super::*;
 
@@ -29,5 +46,12 @@ mod tests {
         let item_database = load_item_database().unwrap();
         //just check that its not empty
         assert!(!item_database.is_empty());
+    }
+
+    #[test]
+    fn test_load_quest_database() {
+        let quest_database = load_quest_database().unwrap();
+        //just check that its not empty
+        assert!(!quest_database.is_empty());
     }
 }

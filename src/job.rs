@@ -55,6 +55,10 @@ impl Job {
             self.level += 1;
         }
     }
+
+    pub fn get_xp_needed_for_next_level(&self) -> u128 {
+        self.level_up_experience[self.level as usize - 1] - self.experience
+    }
 }
 
 mod tests {

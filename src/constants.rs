@@ -103,3 +103,4 @@ pub const LEVEL_UP_EXPERIENCE: [u128; 99] = [
 ];
 
 pub const ITEM_DATABASE_PATH: &str = "src/database/items.json";
+pub const QUEST_DATABASE_PATH: &str = "src/database/quests.json";

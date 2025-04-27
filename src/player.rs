@@ -14,7 +14,6 @@ pub struct Player {
     pub defense: u8,
     pub level: u8,
     pub jobs: Vec<Job>,
-    pub gold: u8,
     pub inventory: Inventory,
     pub current_activity: Option<Activity>,
 }
@@ -51,7 +50,6 @@ impl Player {
             defense: 1,
             level: 1,
             jobs: jobs,
-            gold: 0,
             inventory: Inventory::new(),
             current_activity: None,
         }
@@ -90,6 +88,10 @@ impl Player {
 
     pub fn get_jobs(&self) -> &Vec<Job> {
         &self.jobs
+    }
+
+    pub fn get_job(&self, job_name: JobName) -> Option<&Job> {
+        self.jobs.iter().find(|job| job.name == job_name)
     }
 
     pub fn get_inventory(&self) -> &Inventory {
