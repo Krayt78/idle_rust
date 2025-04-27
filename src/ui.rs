@@ -2,7 +2,9 @@ use crate::game_state::GameState;
 use crate::player::Player;
 use eframe::egui;
 use crate::utils::ItemDatabase;
-
+use crate::utils::QuestDatabase;
+use crate::quest::Quest;
+use crate::quest::QuestData;
 pub enum ButtonClicked {
     Activity,
     Crafting,
@@ -19,7 +21,9 @@ pub fn update(
     player: &mut Player,
     ctx: &egui::Context,
     game_state: &GameState,
+    quests: &Vec<Quest>,
     item_database: &ItemDatabase,
+    quest_database: &QuestDatabase,
 ) -> Option<ButtonClicked> {
     let mut button_clicked: Option<ButtonClicked> = None; // Initialize event variable
 
@@ -38,7 +42,7 @@ pub fn update(
                     button_clicked = show_inventory_ui(ui, player, item_database);
                 }
                 GameState::Quest => {
-                    button_clicked = show_quest_ui(ui, player, item_database);
+                    button_clicked = show_quest_ui(ui, player, quests, quest_database, item_database);
                 }
                 _ => {}
             }
@@ -186,11 +190,22 @@ fn show_inventory_ui(
 fn show_quest_ui(
     ui: &mut egui::Ui,
     player: &mut Player,
+    quests: &Vec<Quest>,
+    quest_database: &QuestDatabase,
     item_database: &ItemDatabase,
 ) -> Option<ButtonClicked> {
     let mut button_clicked = None;
 
+    for quest in quests {
+        let quest_data = quest_database.get(&quest.id).unwrap();
+        quest_ui_component(ui, quest, quest_data);
+    }
+
     button_clicked
+}
+
+fn quest_ui_component(ui: &mut egui::Ui, quest: &Quest, quest_data: &QuestData) {
+   //todo: implement quest ui component
 }
 
 fn show_jobs_ui(ui: &mut egui::Ui, player: &Player) {
